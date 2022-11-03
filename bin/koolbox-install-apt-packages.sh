@@ -29,7 +29,7 @@ koolbox_add_package traceroute
 koolbox_add_package unzip
 koolbox_add_package vim
 koolbox_add_package wget
-koolbox_add_package z
+koolbox_add_package zip
 
 
 export DEBIAN_FRONTEND=noninteractive

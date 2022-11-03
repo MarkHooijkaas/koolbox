@@ -17,7 +17,8 @@ koolbox_parse_options() {
                 exit 0
                 ;;
             -i|--image)
-                KOOLBOX_BUILD_CMD='docker build -f -'
+                export DOCKER_BUILDKIT=1 docker build .  \
+                KOOLBOX_BUILD_CMD='docker build . --progress=plain -f - --tag koolbox:latest'
                 ;;
             -v|--view)
                 KOOLBOX_BUILD_CMD='less'
@@ -53,7 +54,7 @@ EOF
 koolbox_add_commands() {
     # Add a toolbox user, to not run as root
     KOOLBOX_IMAGE_CMDS="RUN  groupadd --gid 1000 toolbox &&  useradd --system --create-home --home-dir /home/toolbox --shell /bin/bash --uid 1000 --gid 1000 toolbox"
-
+    #KOOLBOX_IMAGE_CMDS="RUN mkdir -p ${KOOLBOX_HOME}"
     add_command() {
         if ${KOOLBOX_LAYERS:-true} ; then
             KOOLBOX_IMAGE_CMDS="${KOOLBOX_IMAGE_CMDS}
@@ -64,21 +65,25 @@ RUN $1"
         fi
     }
 
-    add_command bin/koolbox-install-packages.sh
-    add_command bin/koolbox-install-kubectl.sh
-    add_command bin/koolbox-install-kustomize.sh
-    add_command bin/koolbox-install-rancher-cli.sh
-    add_command bin/koolbox-install-aws-cli.sh
-    add_command bin/koolbox-install-helm.sh
-    add_command bin/koolbox-install-yq.sh
+    add_command ${KOOLBOX_HOME}/bin/koolbox-install-apt-packages.sh
+    add_command ${KOOLBOX_HOME}/bin/koolbox-install-kubectl.sh
+    add_command ${KOOLBOX_HOME}/bin/koolbox-install-kustomize.sh
+    add_command ${KOOLBOX_HOME}/bin/koolbox-install-rancher-cli.sh
+    add_command ${KOOLBOX_HOME}/bin/koolbox-install-aws-cli.sh
+    add_command ${KOOLBOX_HOME}/bin/koolbox-install-helm.sh
+    add_command ${KOOLBOX_HOME}/bin/koolbox-install-yq.sh
 }
 
 koolbox_create_dockerfile() {
     cat <<EOF | $KOOLBOX_BUILD_CMD
+# syntax = docker/dockerfile:1.2
 #########################################################
 FROM ubuntu:20.04
 
-COPY bin bin
+RUN mkdir ${KOOLBOX_HOME}/
+COPY . ${KOOLBOX_HOME}/
+RUN ls -la ${KOOLBOX_HOME}/*
+
 
 $KOOLBOX_IMAGE_CMDS
 

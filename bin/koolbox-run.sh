@@ -1,34 +1,34 @@
 #!/bin/bash
 
-: ${TOOLBOX_USER_DIR:=~/.toolbox}
-if [[ -f $TOOLBOX_USER_DIR/init ]]; then
-    source $TOOLBOX_USER_DIR/init
+: ${KOOLBOX_USER_DIR:=~/.toolbox}
+if [[ -f $KOOLBOX_USER_DIR/init ]]; then
+    source $KOOLBOX_USER_DIR/init
 fi
 
 # Set user and group info to current user, unless otherwise specified
-: ${TOOLBOX_USERNAME:=$(id -un)}
-: ${TOOLBOX_UID:=$(id -u)}
-: ${TOOLBOX_GROUPNAME:=$(id -gn)}
-: ${TOOLBOX_GID:=$(id -g)}
+: ${KOOLBOX_USERNAME:=$(id -un)}
+: ${KOOLBOX_UID:=$(id -u)}
+: ${KOOLBOX_GROUPNAME:=$(id -gn)}
+: ${KOOLBOX_GID:=$(id -g)}
 
-: ${TOOLBOX_IMAGE:=markhooijkaas/koolbox:version-0.0.0}
-: ${TOOLBOX_HOME_DIR:=$TOOLBOX_USER_DIR/home}
-: ${TOOLBOX_TMP_DIR:=$TOOLBOX_USER_DIR/tmp}
+: ${KOOLBOX_IMAGE:=koolbox:latest}
+: ${KOOLBOX_HOME_DIR:=$KOOLBOX_USER_DIR/home}
+: ${KOOLBOX_TMP_DIR:=$KOOLBOX_USER_DIR/tmp}
 
-: ${TOOLBOX_CONTAINER_HOME:=/home/$TOOLBOX_USERNAME}
-: ${TOOLBOX_MOUNT_ETC_PASSWD:=true}
-: ${TOOLBOX_MOUNT_ETC_GROUP:=true}
+: ${KOOLBOX_CONTAINER_HOME:=/home/$KOOLBOX_USERNAME}
+: ${KOOLBOX_MOUNT_ETC_PASSWD:=true}
+: ${KOOLBOX_MOUNT_ETC_GROUP:=true}
 
-: ${TOOLBOX_CONTAINER_NAME:=toolbox}
+: ${KOOLBOX_CONTAINER_NAME:=toolbox}
 
-TOOLBOX_MOUNTS="-v $TOOLBOX_HOME_DIR:$TOOLBOX_CONTAINER_HOME"
+KOOLBOX_MOUNTS="-v $KOOLBOX_HOME_DIR:$KOOLBOX_CONTAINER_HOME"
 
 ###############################################################################
 # Create and mount /etc/passwd and /etc/group
-if $TOOLBOX_MOUNT_ETC_PASSWD;  then
-    TOOLBOX_MOUNTS+=" -v $TOOLBOX_TMP_DIR/etc-passwd:/etc/passwd"
-    mkdir -p $TOOLBOX_TMP_DIR
-    cat <<EOF >$TOOLBOX_TMP_DIR/etc-passwd
+if $KOOLBOX_MOUNT_ETC_PASSWD;  then
+    KOOLBOX_MOUNTS+=" -v $KOOLBOX_TMP_DIR/etc-passwd:/etc/passwd"
+    mkdir -p $KOOLBOX_TMP_DIR
+    cat <<EOF >$KOOLBOX_TMP_DIR/etc-passwd
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
 bin:x:2:2:bin:/bin:/usr/sbin/nologin
@@ -48,14 +48,14 @@ irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin
 gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
 nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
 _apt:x:100:65534::/nonexistent:/usr/sbin/nologin
-${TOOLBOX_USERNAME}:x:$TOOLBOX_UID:$TOOLBOX_GID::/home/$TOOLBOX_USERNAME:/bin/bash
+${KOOLBOX_USERNAME}:x:$KOOLBOX_UID:$KOOLBOX_GID::/home/$KOOLBOX_USERNAME:/bin/bash
 EOF
 fi
 
-if $TOOLBOX_MOUNT_ETC_GROUP;  then
-    TOOLBOX_MOUNTS+=" -v $TOOLBOX_TMP_DIR/etc-group:/etc/group"
-    mkdir -p $TOOLBOX_TMP_DIR
-    cat <<EOF >$TOOLBOX_TMP_DIR/etc-group
+if $KOOLBOX_MOUNT_ETC_GROUP;  then
+    KOOLBOX_MOUNTS+=" -v $KOOLBOX_TMP_DIR/etc-group:/etc/group"
+    mkdir -p $KOOLBOX_TMP_DIR
+    cat <<EOF >$KOOLBOX_TMP_DIR/etc-group
 root:x:0:
 daemon:x:1:
 bin:x:2:
@@ -95,12 +95,12 @@ staff:x:50:
 games:x:60:
 users:x:100:
 nogroup:x:65534:
-${TOOLBOX_GROUPNAME}:x:$TOOLBOX_GID:
+${KOOLBOX_GROUPNAME}:x:$KOOLBOX_GID:
 EOF
 
 fi;
 
 
-CMD="docker run --rm --workdir $TOOLBOX_CONTAINER_HOME -it ${TOOLBOX_MOUNTS} ${TOOLBOX_EXTRA_MOUNTS} --name ${TOOLBOX_CONTAINER_NAME} ${TOOLBOX_IMAGE}"
+CMD="docker run --rm --workdir $KOOLBOX_CONTAINER_HOME -it ${KOOLBOX_MOUNTS} ${KOOLBOX_EXTRA_MOUNTS} --name ${KOOLBOX_CONTAINER_NAME} ${KOOLBOX_IMAGE}"
 echo $CMD
 $CMD
