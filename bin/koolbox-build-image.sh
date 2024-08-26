@@ -19,7 +19,7 @@ koolbox_parse_options() {
                 ;;
             -i|--image)
                 export DOCKER_BUILDKIT=1 docker build .  \
-                KOOLBOX_BUILD_CMD='docker build . --progress=plain -f - --tag koolbox:latest'
+                KOOLBOX_BUILD_CMD='docker build . --progress=plain -f - --tag orgkisst/koolbox:latest -t koolbox:latest'
                 ;;
             -v|--view)
                 KOOLBOX_BUILD_CMD='less'
@@ -65,7 +65,7 @@ EOF
 koolbox_add_commands() {
     # Add a toolbox user, to not run as root
 
-    KOOLBOX_PRE_CMDS="groupadd --gid ${KOOLBOX_USER_GID} ${KOOLBOX_USER_GROUP};useradd --system --create-home --home-dir ${KOOLBOX_USER_HOME} --shell /bin/bash --uid ${KOOLBOX_USER_UID} --gid ${KOOLBOX_USER_GID} ${KOOLBOX_USER_NAME}"
+    #KOOLBOX_PRE_CMDS="groupadd --gid ${KOOLBOX_USER_GID} ${KOOLBOX_USER_GROUP};useradd --system --create-home --home-dir ${KOOLBOX_USER_HOME} --shell /bin/bash --uid ${KOOLBOX_USER_UID} --gid ${KOOLBOX_USER_GID} ${KOOLBOX_USER_NAME}"
 
     KOOLBOX_CMDS="RUN true"
     add_command() {
@@ -84,15 +84,15 @@ RUN $1"
     done
 
 
-    add_command ${KOOLBOX_HOME}/bin/koolbox-install-apt-packages.sh
-    add_command ${KOOLBOX_HOME}/bin/koolbox-install-kubectl.sh
-    add_command ${KOOLBOX_HOME}/bin/koolbox-install-kustomize.sh
-    add_command ${KOOLBOX_HOME}/bin/koolbox-install-rancher-cli.sh
-    add_command ${KOOLBOX_HOME}/bin/koolbox-install-aws-cli.sh
-    add_command ${KOOLBOX_HOME}/bin/koolbox-install-helm.sh
-    add_command ${KOOLBOX_HOME}/bin/koolbox-install-yq.sh
+    add_command /opt/koolbox/bin/koolbox-install-apt-packages.sh
+    add_command /opt/koolbox/bin/koolbox-install-kubectl.sh
+    add_command /opt/koolbox/bin/koolbox-install-rancher-cli.sh
+    add_command /opt/koolbox/bin/koolbox-install-ansible.sh
+    add_command /opt/koolbox/bin/koolbox-install-aws-cli.sh
+    add_command /opt/koolbox/bin/koolbox-install-helm.sh
+    add_command /opt/koolbox/bin/koolbox-install-yq.sh
 
-    KOOLBOX_POST_CMDS="pip install kreate-kube"
+    #KOOLBOX_POST_CMDS="pip install kreate-kube"
 
     IFS=';' read -ra CMDS <<< "$KOOLBOX_POST_CMDS"
     for cmd in "${CMDS[@]}"; do
@@ -112,17 +112,20 @@ koolbox_create_dockerfile() {
     cat <<EOF | $KOOLBOX_BUILD_CMD
 # syntax = docker/dockerfile:1.2
 #########################################################
-FROM ${KOOLBOX_BASE_IMAGE}
+FROM ubuntu:24.04 AS koolbox-base
 
-RUN mkdir -p ${KOOLBOX_HOME}/bin
-COPY bin ${KOOLBOX_HOME}/bin
-RUN ls -la ${KOOLBOX_HOME}/*
+ARG DEBIAN_FRONTEND=noninteractive
 
+COPY bin/koolbox-install-apt-packages.sh /opt/koolbox/bin/koolbox-install-apt-packages.sh
+RUN /opt/koolbox/bin/koolbox-install-apt-packages.sh
+
+#########################################################
+FROM koolbox-base
+
+COPY bin /opt/koolbox/bin
+
+RUN ls -laR /opt/koolbox/
 $KOOLBOX_CMDS
-
-# This should be at end, when root is not needed anymore
-USER ${KOOLBOX_USER_UID}
-WORKDIR ${KOOLBOX_USER_HOME}
 
 ENTRYPOINT ["/bin/bash"]
 EOF
