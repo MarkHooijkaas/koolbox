@@ -8,3 +8,5 @@ pip3 install --break-system-packages \
     pre-commit==3.8.0 \
     hvac==2.3.0 \
     jq==1.8.0 \
+
+rm -rf .cache/pip
