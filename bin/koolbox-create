@@ -25,6 +25,7 @@ fi
 
 KOOLBOX_MOUNTS="-v $KOOLBOX_HOME_DIR:$KOOLBOX_CONTAINER_HOME"
 KOOLBOX_MOUNTS+=" -v $KOOLBOX_CONTAINER_HOME/.ssh/ssh-agent-socket:/tmp/ssh-agent-socket"
+KOOLBOX_MOUNTS+=" -v $KOOLBOX_CONTAINER_HOME/.ssh/ssh-agent-socket:/tmp/ssh-agent-socket"
 
 ###############################################################################
 # Create the container
@@ -32,7 +33,7 @@ if docker container inspect $KOOLBOX_CONTAINER_NAME >/dev/null 2>/dev/null; then
     echo  container with name $KOOLBOX_CONTAINER_NAME already exists
 else
     echo creating container $KOOLBOX_CONTAINER_NAME with $KOOLBOX_MOUNTS
-    docker run -itd -u $KOOLBOX_UID --name $KOOLBOX_CONTAINER_NAME $KOOLBOX_MOUNTS --hostname $KOOLBOX_CONTAINER_NAME $KOOLBOX_IMAGE
+    docker run -itd -u $KOOLBOX_UID --name $KOOLBOX_CONTAINER_NAME $KOOLBOX_MOUNTS --hostname $KOOLBOX_CONTAINER_NAME --network host $KOOLBOX_IMAGE
 fi
 
 ###############################################################################
