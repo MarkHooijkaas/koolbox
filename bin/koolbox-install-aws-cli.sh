@@ -7,7 +7,6 @@ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.17.37.zip" -o "awsc
 # latest
 #curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 
-unzip awscliv2.zip
-ls -la *.zip aws
+unzip -q awscliv2.zip
 ./aws/install
 rm -rf awscliv2.zip aws
