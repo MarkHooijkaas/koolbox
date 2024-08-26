@@ -15,10 +15,14 @@ koolbox_add_package curl
 koolbox_add_package git
 koolbox_add_package gnupg
 koolbox_add_package iputils-ping
+koolbox_add_package iproute2
+koolbox_add_package htop
 koolbox_add_package jed
 koolbox_add_package jq
 koolbox_add_package less
 koolbox_add_package nano
+koolbox_add_package netcat-openbsd
+koolbox_add_package net-tools
 koolbox_add_package openssh-client
 koolbox_add_package python3
 koolbox_add_package python3-pip
