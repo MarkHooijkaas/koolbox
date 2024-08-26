@@ -5,7 +5,6 @@ The toolbox is meant to be an interactive development and experimentation contai
 It contains tools such as:
 - python3 (and pip)
 - kubectl
-- kustomize
 - rancher
 - aws cli
 - helm
