@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+
+: ${KOOLBOX_CONFIG_DIR:=~/.config/koolbox}
+if [[ -f $KOOLBOX_CONFIG_DIR/config ]]; then
+    source $KOOLBOX_CONFIG_DIR/config
+fi
+
+: ${KOOLBOX_CONTAINER_NAME:=koolbox}
+
+
+echo  executing killing container $KOOLBOX_CONTAINER_NAME
+docker rm -f $KOOLBOX_CONTAINER_NAME
