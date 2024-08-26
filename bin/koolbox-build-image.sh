@@ -18,7 +18,7 @@ koolbox_parse_options() {
                 exit 0
                 ;;
             -i|--image)
-                export DOCKER_BUILDKIT=1 docker build .  \
+                export DOCKER_BUILDKIT=1      \
                 KOOLBOX_BUILD_CMD='docker build . --progress=plain -f - --tag orgkisst/koolbox:latest -t koolbox:latest'
                 ;;
             -v|--view)
