@@ -1,0 +1,24 @@
+#!/bin/bash
+set -e
+
+: ${KOOLBOX_CONFIG_DIR:=~/.config/koolbox}
+if [[ -f $KOOLBOX_CONFIG_DIR/config ]]; then
+    source $KOOLBOX_CONFIG_DIR/config
+fi
+
+# Set user and group info to current user, unless otherwise specified
+: ${KOOLBOX_USERNAME:=$(id -un)}
+: ${KOOLBOX_UID:=$(id -u)}
+#: ${KOOLBOX_GROUPNAME:=$(id -gn)}
+: ${KOOLBOX_GID:=$(id -g)}
+
+#: ${KOOLBOX_IMAGE:=orgkisst/koolbox:latest}
+#: ${KOOLBOX_HOME_DIR:=$KOOLBOX_CONFIG_DIR/home}
+#: ${KOOLBOX_TMP_DIR:=$KOOLBOX_CONFIG_DIR/tmp}
+
+: ${KOOLBOX_CONTAINER_HOME:=/home/$KOOLBOX_USERNAME}
+: ${KOOLBOX_CONTAINER_NAME:=koolbox}
+
+
+echo  executing new login shell in container $KOOLBOX_CONTAINER_NAME
+docker exec -it -u $KOOLBOX_UID:$KOOLBOX_GID --workdir $KOOLBOX_CONTAINER_HOME  $KOOLBOX_CONTAINER_NAME bash -

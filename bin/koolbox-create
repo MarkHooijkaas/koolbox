@@ -1,0 +1,63 @@
+#!/bin/bash
+set -e
+
+: ${KOOLBOX_CONFIG_DIR:=~/.config/koolbox}
+if [[ -f $KOOLBOX_CONFIG_DIR/config ]]; then
+    source $KOOLBOX_CONFIG_DIR/config
+fi
+
+# Set user and group info to current user, unless otherwise specified
+: ${KOOLBOX_USERNAME:=$(id -un)}
+: ${KOOLBOX_UID:=$(id -u)}
+: ${KOOLBOX_GROUPNAME:=$(id -gn)}
+: ${KOOLBOX_GID:=$(id -g)}
+
+: ${KOOLBOX_IMAGE:=orgkisst/koolbox:latest}
+#: ${KOOLBOX_HOME_DIR:=$KOOLBOX_CONFIG_DIR/home}
+: ${KOOLBOX_HOME_DIR:=~/koolbox-home}
+: ${KOOLBOX_TMP_DIR:=$KOOLBOX_CONFIG_DIR/tmp}
+
+: ${KOOLBOX_CONTAINER_HOME:=/home/$KOOLBOX_USERNAME}
+: ${KOOLBOX_CONTAINER_NAME:=koolbox}
+: ${KOOLBOX_PATCH_ETC_PASSWD:=true}
+: ${KOOLBOX_PATCH_ETC_GROUP:=true}
+
+
+KOOLBOX_MOUNTS="  -v $KOOLBOX_HOME_DIR:$KOOLBOX_CONTAINER_HOME"
+#KOOLBOX_MOUNTS+=" -v $KOOLBOX_CONTAINER_HOME/.ssh/ssh-agent-socket:/tmp/ssh-agent-socket"
+KOOLBOX_MOUNTS+=" -v $HOME:$KOOLBOX_CONTAINER_HOME/host-home"
+KOOLBOX_MOUNTS+=" --mount type=tmpfs,destination=/tmp,tmpfs-mode=777"
+
+
+###############################################################################
+# Create the container
+if docker container inspect $KOOLBOX_CONTAINER_NAME >/dev/null 2>/dev/null; then
+    echo  container with name $KOOLBOX_CONTAINER_NAME already exists
+else
+    echo creating container $KOOLBOX_CONTAINER_NAME with $KOOLBOX_MOUNTS
+    docker run -itd -u $KOOLBOX_UID --name $KOOLBOX_CONTAINER_NAME $KOOLBOX_MOUNTS --hostname $KOOLBOX_CONTAINER_NAME --network host $KOOLBOX_IMAGE
+fi
+
+###############################################################################
+# Create entries in /etc/passwd and /etc/group
+if $KOOLBOX_PATCH_ETC_PASSWD;  then
+  cat <<EOF | docker exec -u 0 --interactive $KOOLBOX_CONTAINER_NAME  /bin/bash
+  if grep -q ^$KOOLBOX_USERNAME: /etc/passwd; then
+      echo user $KOOLBOX_USERNAME exists in /etc/passwd
+  else
+      echo adding user $KOOLBOX_USERNAME to /etc/passwd
+      echo $KOOLBOX_USERNAME:x:$KOOLBOX_UID:$KOOLBOX_GID:,,,:/home/$KOOLBOX_USERNAME:/bin/bash >>/etc/passwd
+  fi
+EOF
+fi
+
+if $KOOLBOX_PATCH_ETC_GROUP;  then
+  cat <<EOF | docker exec -u 0 --interactive $KOOLBOX_CONTAINER_NAME  /bin/bash
+  if grep -q ^$KOOLBOX_GROUPNAME: /etc/group; then
+      echo group $KOOLBOX_GROUPNAME exists in /etc/group
+  else
+      echo adding group $KOOLBOX_GROUPNAME to /etc/group
+      echo $KOOLBOX_GROUPNAME:x:$KOOLBOX_GID: >>/etc/group
+  fi
+EOF
+fi
