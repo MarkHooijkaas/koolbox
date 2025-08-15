@@ -2,7 +2,7 @@
 
 : ${KOOLBOX_LAYERS:=true}
 : ${KOOLBOX_BUILD_CMD:=less}
-: ${KOOLBOX_FILE:=all.kool}
+: ${KOOLBOX_FILE:=config/all.kool}
 
 koolbox_main() {
     koolbox_parse_options "$@"
@@ -22,7 +22,7 @@ koolbox_parse_options() {
                 ;;
             -i|--image)
                 export DOCKER_BUILDKIT=1 \
-                KOOLBOX_BUILD_CMD='podman build koolbox-files --progress=plain -f - --tag orgkisst/koolbox:latest -t koolbox:latest'
+                KOOLBOX_BUILD_CMD=koolbox_build_from_stdin
                 ;;
             -v|--view)
                 KOOLBOX_BUILD_CMD='less'
@@ -41,6 +41,15 @@ koolbox_parse_options() {
         esac
         shift
     done
+}
+
+koolbox_build_from_stdin() {
+    : ${KOOLBOX_IMAGE_NAME:=koolbox}
+    if [[ -z ${KOOLBOX_BUILD_TAGS} ]]; then
+        KOOLBOX_BUILD_TAGS="--tag orgkisst/$KOOLBOX_IMAGE_NAME:latest"
+    fi
+    podman build koolbox-files --progress=plain -f - $KOOLBOX_BUILD_TAGS
+    podman images | grep ${KOOLBOX_IMAGE_NAME}
 }
 
 koolbox_parse_defaults() {
