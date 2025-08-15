@@ -4,8 +4,6 @@ KOOLBOX_IMAGE_NAME=koolbox-kube
 
 source $(dirname ${BASH_SOURCE[0]})/interactive.kool
 
-
-KOOLBOX_INSTALL_APPS=
 KOOLBOX_INSTALL_APPS+=" kubectl"
 KOOLBOX_INSTALL_APPS+=" helm"
 KOOLBOX_INSTALL_APPS+=" yq"
