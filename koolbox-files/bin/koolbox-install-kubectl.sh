@@ -16,7 +16,7 @@ fi
 koolbox_install_file_version kubectl ${KOOLBOX_KUBECTL_VERSION}
 
 # install completions
-if ! KOOLBOX_BUILD_INTERACTIVE; then
+if ! ${KOOLBOX_BUILD_INTERACTIVE:-true}; then
     echo skipping kubectl bash completions
 elif ${koolbox_install_as_root}; then
     $KOOLBOX_INSTALL_DIR/kubectl completion bash | $KOOLBOX_SUDO_CMD tee /etc/bash_completion.d/kubectl > /dev/null
