@@ -1,12 +1,17 @@
 
 
-KOOLBOX_IMAGE_NAME=koolbox-kube
+: ${KOOLBOX_IMAGE_NAME:=koolbox-kube}
 
 source $(dirname ${BASH_SOURCE[0]})/interactive.kool
 
-KOOLBOX_INSTALL_APPS+=" kubectl"
-KOOLBOX_INSTALL_APPS+=" helm"
-KOOLBOX_INSTALL_APPS+=" yq"
+KOOLBOX_IMAGE_NAME=$KOOLBOX_IMAGE_NAME$KOOLBOX_IMAGE_NAME_EXTRA
+
+
+
+KOOLBOX_INSTALL_SCRIPTS+=" apt-packages"
+KOOLBOX_INSTALL_SCRIPTS+=" kubectl"
+KOOLBOX_INSTALL_SCRIPTS+=" helm"
+KOOLBOX_INSTALL_SCRIPTS+=" yq"
 
 KOOLBOX_APT_PACKAGES+=" apt-transport-https"
 KOOLBOX_APT_PACKAGES+=" ca-certificates"

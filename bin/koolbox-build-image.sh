@@ -59,16 +59,16 @@ koolbox_build_from_stdin() {
     cat <<EOF
 *** Building image $KOOLBOX_IMAGE_NAME
 ***    apt install: $KOOLBOX_APT_PACKAGES
-***    install-scripts for: $KOOLBOX_INSTALL_APPS
+***    install-scripts for: $KOOLBOX_INSTALL_SCRIPTS
 EOF
     export KOOLBOX_APT_PACKAGES="${KOOLBOX_APT_PACKAGES}"
     podman build koolbox-files --progress=plain -f - \
       $KOOLBOX_BUILD_TAGS \
       ${KOOLBOX_BUILD_USE_CACHE:-} \
-      ${KOOLBOX_PODMAN_BUILD_OPTIONS:-} \
-      --env KOOLBOX_APT_PACKAGES
+      ${KOOLBOX_PODMAN_BUILD_OPTIONS:-}
+      #--env KOOLBOX_APT_PACKAGES
 
-    podman images | grep ${KOOLBOX_IMAGE_NAME}
+    podman images | grep -E "koolbox|${KOOLBOX_IMAGE_NAME}"
 }
 
 koolbox_parse_defaults() {
@@ -123,8 +123,8 @@ RUN $1"
     done
 
 
-    add_command /opt/koolbox/bin/koolbox-install-apt-packages.sh
-    for app in ${KOOLBOX_INSTALL_APPS}; do
+    #add_command /opt/koolbox/bin/koolbox-install-apt-packages.sh
+    for app in ${KOOLBOX_INSTALL_SCRIPTS}; do
         add_command /opt/koolbox/bin/koolbox-install-${app}.sh
     done
 
@@ -146,16 +146,10 @@ koolbox_create_dockerfile() {
     cat <<EOF | $KOOLBOX_BUILD_CMD
 # syntax = docker/dockerfile:1.2
 #########################################################
-FROM ubuntu:24.04 AS koolbox-base
-
-
-COPY bin/koolbox-install-apt-packages.sh /opt/koolbox/bin/koolbox-install-apt-packages.sh
-RUN /opt/koolbox/bin/koolbox-install-apt-packages.sh
-
-#########################################################
-FROM koolbox-base
+FROM ubuntu:24.04
 
 COPY bin /opt/koolbox/bin
+ENV KOOLBOX_APT_PACKAGES="$KOOLBOX_APT_PACKAGES"
 $KOOLBOX_CMDS
 
 CMD ["/bin/bash"]
