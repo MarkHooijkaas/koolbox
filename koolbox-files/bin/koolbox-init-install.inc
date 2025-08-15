@@ -8,11 +8,11 @@ KOOLBOX_HOME_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 
 : ${koolbox_install_as_root:=false}
 
-if [[ -f $KOOLBOX_CONFIG_DIR/config ]]; then
-    source $KOOLBOX_CONFIG_DIR/koolbox.config
-else
-    source $KOOLBOX_HOME_DIR/koolbox.config
-fi
+#if [[ -f $KOOLBOX_CONFIG_DIR/config ]]; then
+#    source $KOOLBOX_CONFIG_DIR/koolbox.config
+#else
+#    source $KOOLBOX_HOME_DIR/koolbox.config
+#fi
 
 : ${KOOLBOX_INSTALL_DIR:=~/.local/bin}
 : ${koolbox_install_as_root:=false}

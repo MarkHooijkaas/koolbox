@@ -22,7 +22,7 @@ koolbox_parse_options() {
                 ;;
             -i|--image)
                 export DOCKER_BUILDKIT=1 \
-                KOOLBOX_BUILD_CMD='podman build . --progress=plain -f - --tag orgkisst/koolbox:latest -t koolbox:latest'
+                KOOLBOX_BUILD_CMD='podman build koolbox-files --progress=plain -f - --tag orgkisst/koolbox:latest -t koolbox:latest'
                 ;;
             -v|--view)
                 KOOLBOX_BUILD_CMD='less'
