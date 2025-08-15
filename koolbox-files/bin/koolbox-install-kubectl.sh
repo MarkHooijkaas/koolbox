@@ -6,11 +6,14 @@ source $(dirname "${BASH_SOURCE[0]}")/koolbox-init-install.inc
 if [[ -z ${KOOLBOX_KUBECTL_VERSION:-} ]]; then
     # install latest stable
     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    chmod 755 kubectl
+    KOOLBOX_KUBECTL_VERSION=$(./kubectl version --client|grep ^Client| sed 's/Client Version: v//')
+    echo installed kubectl version $KOOLBOX_KUBECTL_VERSION
 else
     # install specific version
     curl -LO "https://dl.k8s.io/release/${KOOLBOX_KUBECTL_VERSION}/bin/linux/amd64/kubectl"
-    koolbox_install_file_version kubectl ${KOOLBOX_KUBECTL_VERSION}
 fi
+koolbox_install_file_version kubectl ${KOOLBOX_KUBECTL_VERSION}
 
 # install completions
 if ${koolbox_install_as_root}; then
