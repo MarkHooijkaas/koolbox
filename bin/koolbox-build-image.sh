@@ -7,7 +7,6 @@
 koolbox_main() {
     koolbox_parse_options "$@"
     source $KOOLBOX_FILE
-    echo $KOOLBOX_INSTALL_APPS
     koolbox_parse_defaults
     koolbox_add_commands
     koolbox_create_dockerfile
@@ -48,7 +47,17 @@ koolbox_build_from_stdin() {
     if [[ -z ${KOOLBOX_BUILD_TAGS} ]]; then
         KOOLBOX_BUILD_TAGS="--tag orgkisst/$KOOLBOX_IMAGE_NAME:latest"
     fi
-    podman build koolbox-files --progress=plain -f - $KOOLBOX_BUILD_TAGS
+    cat <<EOF
+*** Building image $KOOLBOX_IMAGE_NAME
+***    apt install: $KOOLBOX_APT_PACKAGES
+***    install-scripts for: $KOOLBOX_INSTALL_APPS
+EOF
+    export KOOLBOX_APT_PACKAGES="${KOOLBOX_APT_PACKAGES}"
+    podman build koolbox-files --progress=plain -f - \
+      $KOOLBOX_BUILD_TAGS \
+      ${KOOLBOX_PODMAN_BUILD_OPTIONS:-} \
+      --env KOOLBOX_APT_PACKAGES
+
     podman images | grep ${KOOLBOX_IMAGE_NAME}
 }
 
