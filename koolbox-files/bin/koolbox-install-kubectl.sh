@@ -2,21 +2,24 @@
 
 source $(dirname "${BASH_SOURCE[0]}")/koolbox-init-install.inc
 
-koolbox_kubectl_version=v1.30.6
 
-# install latest stable
-# curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-# install specific version
-curl -LO "https://dl.k8s.io/release/${koolbox_kubectl_version}/bin/linux/amd64/kubectl"
+if [[ -z ${KOOLBOX_KUBECTL_VERSION:-} ]]; then
+    # install latest stable
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+else
+    # install specific version
+    curl -LO "https://dl.k8s.io/release/${KOOLBOX_KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+    koolbox_install_file_version kubectl ${KOOLBOX_KUBECTL_VERSION}
+fi
 
-koolbox_install_file_version kubectl ${koolbox_kubectl_version}
+# install completions
 if ${koolbox_install_as_root}; then
     $KOOLBOX_INSTALL_DIR/kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl > /dev/null
     sudo chmod a+r /etc/bash_completion.d/kubectl
 else
     $KOOLBOX_INSTALL_DIR/kubectl completion bash >$(koolbox_install_completions_dir)/kubectl
 fi
-#rm kubectl
+rm kubectl
 
 # Old Ubuntu way
 #export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
