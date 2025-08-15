@@ -5,8 +5,15 @@ KOOLBOX_HOME_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 
 : ${XDG_DATA_HOME:=~/.local/share/}
 : ${KOOLBOX_CONFIG_DIR:=~/.config/koolbox}
-
+: ${KOOLBOX_INSTALL_DIR:=~/.local/bin}
 : ${koolbox_install_as_root:=false}
+if [[ $(id -u) == 0 ]] ;then
+    KOOLBOX_SUDO_CMD=""
+    koolbox_install_as_root=true
+    KOOLBOX_INSTALL_DIR=/usr/local/bin
+else
+    KOOLBOX_SUDO_CMD="sudo"
+fi
 
 #if [[ -f $KOOLBOX_CONFIG_DIR/config ]]; then
 #    source $KOOLBOX_CONFIG_DIR/koolbox.config
@@ -14,15 +21,13 @@ KOOLBOX_HOME_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 #    source $KOOLBOX_HOME_DIR/koolbox.config
 #fi
 
-: ${KOOLBOX_INSTALL_DIR:=~/.local/bin}
-: ${koolbox_install_as_root:=false}
 
 function koolbox_install_file_version() {
     file=$1
     version=$2
     if ${koolbox_install_as_root}; then
-        sudo install -o root -g root -m 0755 $file ${KOOLBOX_INSTALL_DIR}/$file-$version
-        sudo ln -s ${KOOLBOX_INSTALL_DIR}/$file-$version ${KOOLBOX_INSTALL_DIR}/$file
+        $KOOLBOX_SUDO_CMD install -o root -g root -m 0755 $file ${KOOLBOX_INSTALL_DIR}/$file-$version
+        $KOOLBOX_SUDO_CMD ln -s ${KOOLBOX_INSTALL_DIR}/$file-$version ${KOOLBOX_INSTALL_DIR}/$file
     else
         mkdir -p ${KOOLBOX_INSTALL_DIR}
         install -m 0755 $file ${KOOLBOX_INSTALL_DIR}/$file-$version
