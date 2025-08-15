@@ -2,6 +2,7 @@
 
 : ${KOOLBOX_LAYERS:=true}
 : ${KOOLBOX_BUILD_CMD:=less}
+: ${KOOLBOX_BUILD_INTERACTIVE:=true}
 : ${KOOLBOX_FILE:=config/all.kool}
 
 koolbox_main() {
@@ -19,8 +20,7 @@ koolbox_parse_options() {
                 koolbox_help
                 exit 0
                 ;;
-            -i|--image)
-                export DOCKER_BUILDKIT=1 \
+            -b|--build)
                 KOOLBOX_BUILD_CMD=koolbox_build_from_stdin
                 ;;
             -v|--view)
@@ -28,6 +28,15 @@ koolbox_parse_options() {
                 ;;
             -l|--lean)
                 KOOLBOX_LAYERS=false
+                ;;
+            -n|--no-cache)
+                KOOLBOX_BUILD_USE_CACHE="--no-cache"
+                ;;
+            -i|--interactive)
+                KOOLBOX_BUILD_INTERACTIVE=true
+                ;;
+            -s|--script)
+                KOOLBOX_BUILD_INTERACTIVE=false
                 ;;
             -f|--file)
                 shift
@@ -55,6 +64,7 @@ EOF
     export KOOLBOX_APT_PACKAGES="${KOOLBOX_APT_PACKAGES}"
     podman build koolbox-files --progress=plain -f - \
       $KOOLBOX_BUILD_TAGS \
+      ${KOOLBOX_BUILD_USE_CACHE:-} \
       ${KOOLBOX_PODMAN_BUILD_OPTIONS:-} \
       --env KOOLBOX_APT_PACKAGES
 
@@ -81,9 +91,12 @@ The purpose of kreate is calling kreate.sh to create files
 and then optionally execute a command like git or kustomize
 Options can be:
     -h|--help        display this help and exit
-    -i|--image       build the docker image
+    -b|--build       build the docker image
+    -n|--no-cache    don't use the cache of previous builds
     -v|--view        view the Dockerfile without building it (default)
     -l|--lean        remove as much layers as possible
+    -i|--interactive make interactive image with extra tools (default)
+    -s|--script      make non-interactive image for use in scripts
     -f|--file <file> file with list of packages (default all.kooL)
 EOF
 }
@@ -135,7 +148,6 @@ koolbox_create_dockerfile() {
 #########################################################
 FROM ubuntu:24.04 AS koolbox-base
 
-ARG DEBIAN_FRONTEND=noninteractive
 
 COPY bin/koolbox-install-apt-packages.sh /opt/koolbox/bin/koolbox-install-apt-packages.sh
 RUN /opt/koolbox/bin/koolbox-install-apt-packages.sh

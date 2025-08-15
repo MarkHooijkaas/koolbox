@@ -1,6 +1,5 @@
 #!/usr/bin/bash
 
-
 echo installing apt packages '['$KOOLBOX_APT_PACKAGES']'
 
 export DEBIAN_FRONTEND=noninteractive

@@ -16,13 +16,14 @@ fi
 koolbox_install_file_version kubectl ${KOOLBOX_KUBECTL_VERSION}
 
 # install completions
-if ${koolbox_install_as_root}; then
+if ! KOOLBOX_BUILD_INTERACTIVE; then
+    echo skipping kubectl bash completions
+elif ${koolbox_install_as_root}; then
     $KOOLBOX_INSTALL_DIR/kubectl completion bash | $KOOLBOX_SUDO_CMD tee /etc/bash_completion.d/kubectl > /dev/null
     $KOOLBOX_SUDO_CMD chmod a+r /etc/bash_completion.d/kubectl
 else
     $KOOLBOX_INSTALL_DIR/kubectl completion bash >$(koolbox_install_completions_dir)/kubectl
 fi
-rm kubectl
 
 # Old Ubuntu way
 #export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
