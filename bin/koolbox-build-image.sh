@@ -146,7 +146,7 @@ FROM koolbox-base
 COPY bin /opt/koolbox/bin
 $KOOLBOX_CMDS
 
-ENTRYPOINT ["/bin/bash"]
+CMD ["/bin/bash"]
 EOF
 }
 
