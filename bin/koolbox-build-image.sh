@@ -135,8 +135,6 @@ RUN /opt/koolbox/bin/koolbox-install-apt-packages.sh
 FROM koolbox-base
 
 COPY bin /opt/koolbox/bin
-
-RUN ls -laR /opt/koolbox/
 $KOOLBOX_CMDS
 
 ENTRYPOINT ["/bin/bash"]
