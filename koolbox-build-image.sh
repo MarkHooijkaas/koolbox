@@ -2,9 +2,12 @@
 
 : ${KOOLBOX_LAYERS:=true}
 : ${KOOLBOX_BUILD_CMD:=less}
+: ${KOOLBOX_FILE:=all.kool}
 
 koolbox_main() {
     koolbox_parse_options "$@"
+    source $KOOLBOX_FILE
+    echo $KOOLBOX_INSTALL_APPS
     koolbox_parse_defaults
     koolbox_add_commands
     koolbox_create_dockerfile
@@ -18,14 +21,18 @@ koolbox_parse_options() {
                 exit 0
                 ;;
             -i|--image)
-                export DOCKER_BUILDKIT=1      \
-                KOOLBOX_BUILD_CMD='docker build . --progress=plain -f - --tag orgkisst/koolbox:latest -t koolbox:latest'
+                export DOCKER_BUILDKIT=1 \
+                KOOLBOX_BUILD_CMD='podman build . --progress=plain -f - --tag orgkisst/koolbox:latest -t koolbox:latest'
                 ;;
             -v|--view)
                 KOOLBOX_BUILD_CMD='less'
                 ;;
             -l|--lean)
                 KOOLBOX_LAYERS=false
+                ;;
+            -f|--file)
+                shift
+                KOOLBOX_FILE=$1
                 ;;
             *)  # Default case: No more options, so break out of the loop.
                 echo Unknown option $1
@@ -55,10 +62,11 @@ Usage: ${0##*/} [options]
 The purpose of kreate is calling kreate.sh to create files
 and then optionally execute a command like git or kustomize
 Options can be:
-    -h|--help      display this help and exit
-    -i|--image     build the docker image
-    -v|--view      view the Dockerfile without building it (default)
-    -l|--lean      remove as much layers as possible
+    -h|--help        display this help and exit
+    -i|--image       build the docker image
+    -v|--view        view the Dockerfile without building it (default)
+    -l|--lean        remove as much layers as possible
+    -f|--file <file> file with list of packages (default all.kooL)
 EOF
 }
 
@@ -85,14 +93,9 @@ RUN $1"
 
 
     add_command /opt/koolbox/bin/koolbox-install-apt-packages.sh
-    add_command /opt/koolbox/bin/koolbox-install-kubectl.sh
-    add_command /opt/koolbox/bin/koolbox-install-rancher-cli.sh
-    add_command /opt/koolbox/bin/koolbox-install-ansible.sh
-    add_command /opt/koolbox/bin/koolbox-install-aws-cli.sh
-    add_command /opt/koolbox/bin/koolbox-install-helm.sh
-    add_command /opt/koolbox/bin/koolbox-install-yq.sh
-
-    #KOOLBOX_POST_CMDS="pip install kreate-kube"
+    for app in ${KOOLBOX_INSTALL_APPS}; do
+        add_command /opt/koolbox/bin/koolbox-install-${app}.sh
+    done
 
     IFS=';' read -ra CMDS <<< "$KOOLBOX_POST_CMDS"
     for cmd in "${CMDS[@]}"; do
