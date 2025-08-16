@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 KOOLBOX_INSTALL_SCRIPTS+=" apt-packages"
-KOOLBOX_INSTALL_SCRIPTS+=" azure-cli-apt"
+KOOLBOX_INSTALL_SCRIPTS+=" aws-cli"
+#KOOLBOX_INSTALL_SCRIPTS+=" azure-cli"
 
 # aws-cli needs
 export KOOLBOX_INSTALL_APT_PACKAGES="python3"

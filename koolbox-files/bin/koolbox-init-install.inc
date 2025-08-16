@@ -3,6 +3,10 @@ set -ue
 
 #KOOLBOX_BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 
+KOOLBOX_APT_AVAILABLE=$(type -t apt >/dev/null) || true
+KOOLBOX_DNF_AVAILABLE=$(type -t dnf >/dev/null) || true
+
+
 if [[ $(id -u) == 0 ]] ;then
     KOOLBOX_SUDO_CMD=""
     KOOLBOX_INSTALL_AS_ROOT=true
