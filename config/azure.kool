@@ -1,6 +1,0 @@
-KOOLBOX_IMAGE_NAME=koolbox-azure
-
-source $(dirname ${BASH_SOURCE[0]})/kube.kool
-
-KOOLBOX_INSTALL_SCRIPTS+=" azure-cli"
-KOOLBOX_APT_PACKAGES+=" python3"
