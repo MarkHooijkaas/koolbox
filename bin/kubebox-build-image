@@ -1,13 +1,3 @@
-
-
-: ${KOOLBOX_IMAGE_NAME:=koolbox-kube}
-
-source $(dirname ${BASH_SOURCE[0]})/interactive.kool
-
-KOOLBOX_IMAGE_NAME=$KOOLBOX_IMAGE_NAME$KOOLBOX_IMAGE_NAME_EXTRA
-
-
-
 KOOLBOX_INSTALL_SCRIPTS+=" apt-packages"
 KOOLBOX_INSTALL_SCRIPTS+=" kubectl"
 KOOLBOX_INSTALL_SCRIPTS+=" helm"
@@ -25,3 +15,9 @@ KOOLBOX_APT_PACKAGES+=" openssh-client"
 KOOLBOX_APT_PACKAGES+=" wget"
 KOOLBOX_APT_PACKAGES+=" unzip"
 KOOLBOX_APT_PACKAGES+=" zip"
+
+export KOOLBOX_IMAGE_NAME=kubebox
+export KOOLBOX_APT_PACKAGES
+export KOOLBOX_INSTALL_SCRIPTS
+
+source $(dirname ${BASH_SOURCE[0]})/koolbox-image-builder
