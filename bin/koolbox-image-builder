@@ -8,7 +8,6 @@
 
 koolbox_main() {
     koolbox_parse_options "$@"
-    koolbox_add_commands
     koolbox_create_dockerfile
 }
 

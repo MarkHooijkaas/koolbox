@@ -3,8 +3,16 @@
 KOOLBOX_INSTALL_SCRIPTS+=" apt-packages"
 KOOLBOX_INSTALL_SCRIPTS+=" azure-cli"
 
-export KOOLBOX_IMAGE_NAME=kloudbox
+# aws-cli needs
 export KOOLBOX_INSTALL_APT_PACKAGES="python3"
+
+# azure-cli needs apt-transport-https ca-certificates curl gnupg lsb-release
+KOOLBOX_INSTALL_APT_PACKAGES+=" apt-transport-https"
+KOOLBOX_INSTALL_APT_PACKAGES+=" gnupg"
+KOOLBOX_INSTALL_APT_PACKAGES+=" lsb-release"
+
+
+export KOOLBOX_IMAGE_NAME=kloudbox
 export KOOLBOX_INSTALL_SCRIPTS
 export KOOLBOX_BUILD_FROM=kubebox
 
