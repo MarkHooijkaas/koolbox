@@ -7,7 +7,7 @@ function add_mount() {
     fi
 }
 
-KOOLBOX_IMAGE=koolbox-kube:latest
+KOOLBOX_IMAGE=koolbox:latest
 
 KOOLBOX_OPTIONS+=" --env HOME"
 KOOLBOX_OPTIONS+=" --workdir $(pwd)"

@@ -40,21 +40,22 @@ koolbox_parse_options() {
 }
 
 koolbox_build_from_stdin() {
+    # TODO: look at --squash and --layers options for build: https://github.com/containers/buildah/issues/1234#issuecomment-534685356
     : ${KOOLBOX_IMAGE_NAME:=koolbox}
     if [[ -z ${KOOLBOX_BUILD_TAGS} ]]; then
         KOOLBOX_BUILD_TAGS="--tag orgkisst/$KOOLBOX_IMAGE_NAME:latest"
     fi
     cat <<EOF
 *** Building image $KOOLBOX_IMAGE_NAME
-***    apt install: $KOOLBOX_APT_PACKAGES
+***    apt install: $KOOLBOX_INSTALL_APT_PACKAGES
 ***    install-scripts for: $KOOLBOX_INSTALL_SCRIPTS
 EOF
-    export KOOLBOX_APT_PACKAGES="${KOOLBOX_APT_PACKAGES}"
+    export KOOLBOX_INSTALL_APT_PACKAGES="${KOOLBOX_INSTALL_APT_PACKAGES}"
     podman build koolbox-files --progress=plain -f - \
       $KOOLBOX_BUILD_TAGS \
       ${KOOLBOX_BUILD_USE_CACHE:-} \
       ${KOOLBOX_PODMAN_BUILD_OPTIONS:-}
-      #--env KOOLBOX_APT_PACKAGES
+      #--env KOOLBOX_INSTALL_APT_PACKAGES
 
     podman images | grep -E "koolbox|${KOOLBOX_IMAGE_NAME}"
 }
@@ -76,38 +77,10 @@ Options can be:
 EOF
 }
 
-koolbox_add_commands() {
-    # Add a toolbox user, to not run as root
-
-    #KOOLBOX_PRE_CMDS="groupadd --gid ${KOOLBOX_USER_GID} ${KOOLBOX_USER_GROUP};useradd --system --create-home --home-dir ${KOOLBOX_USER_HOME} --shell /bin/bash --uid ${KOOLBOX_USER_UID} --gid ${KOOLBOX_USER_GID} ${KOOLBOX_USER_NAME}"
-
-    KOOLBOX_CMDS="RUN true"
-    add_command() {
-        if ${KOOLBOX_LAYERS:-true} ; then
-            KOOLBOX_CMDS="${KOOLBOX_CMDS}
-RUN $1"
-        else
-            KOOLBOX_CMDS="${KOOLBOX_CMDS} && \\
-    $1"
-        fi
-    }
-
-    IFS=';' read -ra CMDS <<< "$KOOLBOX_PRE_CMDS"
-    for cmd in "${CMDS[@]}"; do
-        add_command "$cmd"
-    done
-
-
-    #add_command /opt/koolbox/bin/koolbox-install-apt-packages.sh
+koolbox_install_commands() {
     for app in ${KOOLBOX_INSTALL_SCRIPTS}; do
-        add_command /opt/koolbox/bin/koolbox-install-${app}.sh
+        echo /opt/koolbox/bin/koolbox-install-${app}.sh
     done
-
-    IFS=';' read -ra CMDS <<< "$KOOLBOX_POST_CMDS"
-    for cmd in "${CMDS[@]}"; do
-        add_command "$cmd"
-    done
-
 }
 
 
@@ -124,8 +97,14 @@ koolbox_create_dockerfile() {
 FROM ubuntu:24.04
 
 COPY bin /opt/koolbox/bin
-ENV KOOLBOX_APT_PACKAGES="$KOOLBOX_APT_PACKAGES"
-$KOOLBOX_CMDS
+COPY <<EOT /etc/koolbox/$KOOLBOX_IMAGE_NAME.build.env
+$(set | grep -E '^KOOLBOX_INSTALL|^KOOLBOX_BUILD' | sed 's/^/export /')
+EOT
+
+RUN <<EOT bash
+source /etc/koolbox/${KOOLBOX_IMAGE_NAME}.build.env
+$(koolbox_install_commands)
+EOT
 
 CMD ["/bin/bash"]
 EOF
