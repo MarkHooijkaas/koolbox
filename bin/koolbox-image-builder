@@ -7,8 +7,6 @@
 
 koolbox_main() {
     koolbox_parse_options "$@"
-    source $KOOLBOX_FILE
-    koolbox_parse_defaults
     koolbox_add_commands
     koolbox_create_dockerfile
 }
@@ -31,16 +29,6 @@ koolbox_parse_options() {
                 ;;
             -n|--no-cache)
                 KOOLBOX_BUILD_USE_CACHE="--no-cache"
-                ;;
-            -i|--interactive)
-                KOOLBOX_BUILD_INTERACTIVE=true
-                ;;
-            -s|--script)
-                KOOLBOX_BUILD_INTERACTIVE=false
-                ;;
-            -f|--file)
-                shift
-                KOOLBOX_FILE=$1
                 ;;
             *)  # Default case: No more options, so break out of the loop.
                 echo Unknown option $1
@@ -71,16 +59,6 @@ EOF
     podman images | grep -E "koolbox|${KOOLBOX_IMAGE_NAME}"
 }
 
-koolbox_parse_defaults() {
-    : ${KOOLBOX_BASE_IMAGE:=ubuntu:22.04}
-    : ${KOOLBOX_USER_NAME:=kooluser}
-    : ${KOOLBOX_USER_UID:=1000}
-    : ${KOOLBOX_USER_GROUP:=${KOOLBOX_USER_NAME}}
-    : ${KOOLBOX_USER_GID:=1000}
-    : ${KOOLBOX_USER_HOME:=/home/${KOOLBOX_USER_NAME}}
-    : ${KOOLBOX_HOME:=/opt/koolbox}
-}
-
 #####################################################################
 
 koolbox_help() {
@@ -95,9 +73,6 @@ Options can be:
     -n|--no-cache    don't use the cache of previous builds
     -v|--view        view the Dockerfile without building it (default)
     -l|--lean        remove as much layers as possible
-    -i|--interactive make interactive image with extra tools (default)
-    -s|--script      make non-interactive image for use in scripts
-    -f|--file <file> file with list of packages (default all.kooL)
 EOF
 }
 
