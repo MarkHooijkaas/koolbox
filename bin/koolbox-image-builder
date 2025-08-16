@@ -4,6 +4,7 @@
 : ${KOOLBOX_BUILD_CMD:=less}
 : ${KOOLBOX_BUILD_INTERACTIVE:=true}
 : ${KOOLBOX_FILE:=config/all.kool}
+: ${KOOLBOX_BUILD_FROM:=ubuntu:24.04}
 
 koolbox_main() {
     koolbox_parse_options "$@"
@@ -94,7 +95,7 @@ koolbox_create_dockerfile() {
     cat <<EOF | $KOOLBOX_BUILD_CMD
 # syntax = docker/dockerfile:1.2
 #########################################################
-FROM ubuntu:24.04
+FROM $KOOLBOX_BUILD_FROM
 
 COPY bin /opt/koolbox/bin
 COPY <<EOT /etc/koolbox/$KOOLBOX_IMAGE_NAME.build.env
