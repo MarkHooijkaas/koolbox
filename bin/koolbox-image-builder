@@ -1,6 +1,5 @@
 #!/usr/bin/bash
 
-: ${KOOLBOX_LAYERS:=true}
 : ${KOOLBOX_BUILD_CMD:=less}
 : ${KOOLBOX_BUILD_INTERACTIVE:=true}
 : ${KOOLBOX_FILE:=config/all.kool}
@@ -24,11 +23,8 @@ koolbox_parse_options() {
             -v|--view)
                 KOOLBOX_BUILD_CMD='less'
                 ;;
-            -l|--lean)
-                KOOLBOX_LAYERS=false
-                ;;
             -n|--no-cache)
-                KOOLBOX_BUILD_USE_CACHE="--no-cache"
+                KOOLBOX_PODMAN_BUILD_OPTIONS+=" --no-cache"
                 ;;
             *)  # Default case: No more options, so break out of the loop.
                 echo Unknown option $1
@@ -42,22 +38,18 @@ koolbox_parse_options() {
 koolbox_build_from_stdin() {
     # TODO: look at --squash and --layers options for build: https://github.com/containers/buildah/issues/1234#issuecomment-534685356
     : ${KOOLBOX_IMAGE_NAME:=koolbox}
-    if [[ -z ${KOOLBOX_BUILD_TAGS} ]]; then
-        KOOLBOX_BUILD_TAGS="--tag orgkisst/$KOOLBOX_IMAGE_NAME:latest"
-    fi
+    options=${KOOLBOX_PODMAN_BUILD_OPTIONS:-}
+    for tag in ${KOOLBOX_BUILD_TAGS:-latest}; do
+        options+=" --tag orgkisst/$KOOLBOX_IMAGE_NAME:$tag"
+    done
     cat <<EOF
 *** Building image $KOOLBOX_IMAGE_NAME
 ***    apt install: $KOOLBOX_INSTALL_APT_PACKAGES
 ***    install-scripts for: $KOOLBOX_INSTALL_SCRIPTS
 EOF
     export KOOLBOX_INSTALL_APT_PACKAGES="${KOOLBOX_INSTALL_APT_PACKAGES}"
-    podman build koolbox-files --progress=plain -f - \
-      $KOOLBOX_BUILD_TAGS \
-      ${KOOLBOX_BUILD_USE_CACHE:-} \
-      ${KOOLBOX_PODMAN_BUILD_OPTIONS:-}
-      #--env KOOLBOX_INSTALL_APT_PACKAGES
-
-    podman images | grep -E "koolbox|${KOOLBOX_IMAGE_NAME}"
+    podman build koolbox-files --progress=plain -f - $options && \
+    echo finished building;  podman images | grep  "${KOOLBOX_IMAGE_NAME}"
 }
 
 #####################################################################
@@ -73,7 +65,6 @@ Options can be:
     -b|--build       build the docker image
     -n|--no-cache    don't use the cache of previous builds
     -v|--view        view the Dockerfile without building it (default)
-    -l|--lean        remove as much layers as possible
 EOF
 }
 
