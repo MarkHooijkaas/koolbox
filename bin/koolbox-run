@@ -1,13 +1,14 @@
 #!/bin/bash
 set -e
 
+image=$(basename $0)
+
 function add_mount() {
     if [[ -d $1 ]]; then
         KOOLBOX_OPTIONS+=" -v $1:$1:Z"
     fi
 }
 
-KOOLBOX_IMAGE=koolbox:latest
 
 KOOLBOX_OPTIONS+=" --env HOME"
 KOOLBOX_OPTIONS+=" --workdir $(pwd)"
@@ -19,5 +20,5 @@ add_mount ${HOME}/.config
 add_mount $(pwd)
 
 
-
-podman run -it --rm  $KOOLBOX_OPTIONS $KOOLBOX_IMAGE "${@}"
+echo Starting $image
+podman run -it --rm  $KOOLBOX_OPTIONS $image "${@}"
