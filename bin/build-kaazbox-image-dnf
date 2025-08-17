@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -eu
+
+script_dir=$(dirname ${BASH_SOURCE[0]})
+install_method=${KOOLBOX_INSTALL_METHOD_AZURE_CLI:=dnf}
+
+export KOOLBOX_BUILD_FROM=almalinux:8 #ubi8
+export KOOLBOX_IMAGE_NAME=kaazbox
+
+#export KOOLBOX_INSTALL_APT_PACKAGES="pip"
+#export KOOLBOX_INSTALL_SCRIPTS="apt-packages azure-cli-pip"
+
+export KOOLBOX_INSTALL_SCRIPTS="azure-cli"
+
+export KOOLBOX_INSTALL_METHOD_AZURE_CLI
+export KOOLBOX_BUILD_TAGS="$install_method"
+
+$script_dir/koolbox-image-builder "${@}"
