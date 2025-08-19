@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -eu
+
+script_dir=$(dirname ${BASH_SOURCE[0]})
+
+export KOOLBOX_BUILD_FROM=kubebox:full
+export KOOLBOX_IMAGE_NAME=kaazbox
+export KOOLBOX_BUILD_TAGS="full"
+
+export KOOLBOX_INSTALL_APT_PACKAGES="" # extra packages needed are in install script
+export KOOLBOX_INSTALL_SCRIPTS="azure-cli-apt"
+
+$script_dir/koolbox-image-builder "${@}"

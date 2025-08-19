@@ -3,10 +3,11 @@ set -eu
 
 script_dir=$(dirname ${BASH_SOURCE[0]})
 
-export KOOLBOX_BUILD_FROM=kubibox
-export KOOLBOX_IMAGE_NAME=kawisbox
+export KOOLBOX_BUILD_FROM=kubebox:full
+export KOOLBOX_IMAGE_NAME=kawsbox
+export KOOLBOX_BUILD_TAGS="full"
 
+export KOOLBOX_INSTALL_APT_PACKAGES=""
 export KOOLBOX_INSTALL_SCRIPTS="aws-cli"
-export KOOLBOX_INSTALL_APT_PACKAGES="apt-transport-https gnupg lsb-release"
 
 $script_dir/koolbox-image-builder "${@}"

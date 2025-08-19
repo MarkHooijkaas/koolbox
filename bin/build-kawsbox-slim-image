@@ -7,7 +7,7 @@ export KOOLBOX_BUILD_FROM=kubebox:slim
 export KOOLBOX_IMAGE_NAME=kawsbox
 export KOOLBOX_BUILD_TAGS="slim"
 
+export KOOLBOX_INSTALL_APT_PACKAGES=""
 export KOOLBOX_INSTALL_SCRIPTS="aws-cli"
-export KOOLBOX_INSTALL_APT_PACKAGES="apt-transport-https gnupg lsb-release"
 
 $script_dir/koolbox-image-builder "${@}"

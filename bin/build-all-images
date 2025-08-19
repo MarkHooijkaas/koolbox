@@ -5,3 +5,7 @@ script_dir=$(dirname ${BASH_SOURCE[0]})
 
 $script_dir/build-kubebox-slim-image "${@}"
 $script_dir/build-kubebox-image "${@}"
+$script_dir/build-kawsbox-slim-image "${@}"
+$script_dir/build-kawsbox-image "${@}"
+$script_dir/build-kaazbox-slim-image "${@}"
+$script_dir/build-kaazbox-image "${@}"
