@@ -43,3 +43,6 @@ localhost/orgkisst/kubebox  full         9169edef4802  5 hours ago  528 MB
 localhost/orgkisst/kubebox  slim         30ddf25040d3  4 hours ago  373 MB
 localhost/orgkisst/kubebox  superslim    c002eb552318  4 hours ago  239 MB
 ```
+
+# TODO
+Many packages, still can be added, like: k9s, plugins helm-diff, kubent, krew, kubectl-clean, ...

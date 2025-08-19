@@ -5,15 +5,13 @@ export KOOLBOX_BASE_DIR=$(dirname $(dirname $(readlink -f ${BASH_SOURCE[0]})))
 
 image_base=$(basename $0)
 
-: ${KOOLBOX_RUN_IMAGE:=kubebox:full}
-
 koolbox_main() {
-    koolbox_parse_options "$@"
+    #koolbox_parse_options "$@"
     koolbox_load_config
-    koolbox_run
+    koolbox_run "${@}"
 }
 
-koolbox_parse_options() {
+#koolbox_parse_options() {
     while [ ! $# -eq 0 ]; do
         case $1 in
             -h|--help)
@@ -25,14 +23,18 @@ koolbox_parse_options() {
                 image_base=$2
                 shift
                 ;;
+            --command|--)
+                shift
+                break
+                ;;
             *)  # Default case: No more options, so break out of the loop.
-                echo Unknown option $1
-                koolbox_help
-                exit 1
+                echo $1
+                break
         esac
         shift
     done
-}
+#}
+
 
 function koolbox_help() {
     cat << EOF
@@ -59,7 +61,6 @@ function koolbox_run() {
     for path in $KOOLBOX_RUN_MOUNTS; do
         KOOLBOX_RUN_OPTIONS+=" -v $path:$path:Z"
     done
-
     podman run -it --rm  $KOOLBOX_RUN_OPTIONS $KOOLBOX_RUN_IMAGE "${@}"
 }
 
