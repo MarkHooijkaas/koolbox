@@ -1,0 +1,69 @@
+#!/bin/bash
+#set -e
+
+script_dir=$(dirname ${BASH_SOURCE[0]})
+
+image_base=$(basename $0)
+
+: ${KOOLBOX_RUN_IMAGE:=kubebox:full}
+
+koolbox_main() {
+    koolbox_parse_options "$@"
+    koolbox_load_config
+    koolbox_run
+}
+
+koolbox_parse_options() {
+    while [ ! $# -eq 0 ]; do
+        case $1 in
+            -h|--help)
+                koolbox_help
+                exit 0
+                ;;
+            -i|--image)
+                KOOLBOX_RUN_IMAGE=$2;
+                image_base=$2
+                shift
+                ;;
+            *)  # Default case: No more options, so break out of the loop.
+                echo Unknown option $1
+                koolbox_help
+                exit 1
+        esac
+        shift
+    done
+}
+
+function koolbox_help() {
+    cat << EOF
+Usage: ${0##*/} [options]
+
+The purpose of koolboz is to run an image with some correct mounts
+Options can be:
+    -h|--help        display this help and exit
+    -i|--image       the image to run (default kubebox)
+EOF
+}
+
+function koolbox_load_config() {
+    file=$script_dir/../config/$image_base.config
+    if [[ -f $file ]]; then
+        echo reading config $file
+        source $script_dir/../config/$image_base.config
+    else
+        echo skipping config $file
+    fi
+}
+
+function koolbox_run() {
+    KOOLBOX_RUN_OPTIONS+=" --env HOME"
+    KOOLBOX_RUN_OPTIONS+=" --workdir $(pwd)"
+    for path in $KOOLBOX_RUN_MOUNTS; do
+        KOOLBOX_RUN_OPTIONS+=" -v $path:$path:Z"
+    done
+
+    echo running podman run -it --rm  $KOOLBOX_RUN_OPTIONS $KOOLBOX_RUN_IMAGE "${@}"
+    podman run -it --rm  $KOOLBOX_RUN_OPTIONS $KOOLBOX_RUN_IMAGE "${@}"
+}
+
+koolbox_main "${@}"
