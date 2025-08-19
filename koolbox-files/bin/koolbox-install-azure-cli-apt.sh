@@ -8,8 +8,8 @@ source $(dirname "${BASH_SOURCE[0]}")/koolbox-init-install.inc
 #
 
 # Based on https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?view=azure-cli-latest&pivots=apt
-# First steps are already done in image, but documented here
-# apt-get install apt-transport-https ca-certificates curl gnupg lsb-release
+
+${KOOLBOX_SUDO_CMD} apt-get install apt-transport-https ca-certificates curl gnupg lsb-release
 ${KOOLBOX_SUDO_CMD} mkdir -p /etc/apt/keyrings
 curl -sLS https://packages.microsoft.com/keys/microsoft.asc |
     gpg --dearmor | ${KOOLBOX_SUDO_CMD} tee /etc/apt/keyrings/microsoft.gpg > /dev/null
