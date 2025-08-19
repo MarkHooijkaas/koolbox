@@ -48,11 +48,22 @@ EOF
 }
 
 function koolbox_load_config() {
-    file=$KOOLBOX_BASE_DIR/config/$image_base.config
-    if [[ -f $file ]]; then
-        #echo reading config $file
-        source $file
-    fi
+    KOOLBOX_DEFAULT_CONFIG_PATH=./$image_base.config
+    KOOLBOX_DEFAULT_CONFIG_PATH+=:~/.config/koolbox
+    KOOLBOX_DEFAULT_CONFIG_PATH+=:$KOOLBOX_BASE_DIR/config
+    : ${KOOLBOX_CONFIG_PATH:=$KOOLBOX_DEFAULT_CONFIG_PATH}
+    for path in ${KOOLBOX_CONFIG_PATH//:/ }; do
+        #echo trying $path
+        if [[ -f $path ]]; then
+            echo reading config $path
+            source $path
+            break
+        elif [[ -f $path/$image_base.config ]]; then
+            echo reading config $path/$image_base.config
+            source $path/$image_base.config
+            break
+        fi
+    done
 }
 
 function koolbox_run() {
