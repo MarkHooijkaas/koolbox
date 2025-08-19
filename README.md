@@ -12,35 +12,34 @@ They can be based on debian-slim, which does not contain things as documentation
 The interactive images contain all kind of extra tools and packages such as:
 - documentation and other stuff not in slim
 - less
+- vim
 - k9s
 - ...
-The interactive images can be recognized with an `i` in their name, just before `box`
+The interactive images can be recognized are tagged `full` while
 
 Several images are planned/available:
 - `kubebox`: kubectl, helm, several plugins and probably python3
-- `kubibox`: interactive version
 - `kaazbox`: Kubernetes And AZ: adds azure-cli and terraform
-- `kaazibox`: interactive version
 - `kawsbox`: Kubernetes AWS: adds aws-cli and terraform
-- `kawsibox`: interactive version
+Planned images might be
 - `kloudbox`: adds all cloud tools, aws, az, gcp, ...
-- `kloudibox`: interactive version
-- koolbox is not a container image, but the overall tools to build and run these tools
+- `kansbox` : kubernetes and ansible
+- `kallbox` : kloudbox and ansible
+
+koolbox itself is not a container image, but the overall tools to build and run these tools.
 
 
 There is a huge variation on image sizes as can be seen:
 ```
-$ podman images --sort tag| grep -v none
-REPOSITORY                   TAG            IMAGE ID      CREATED         SIZE
-docker.io/library/debian     12             3d2058890b96  6 days ago      121 MB
-docker.io/library/debian     12-slim        f813b63f015b  6 days ago      77.9 MB
-docker.io/library/ubuntu     24.04          e0f16e6366fe  2 weeks ago     80.6 MB
-docker.io/library/python     3.12           537013425929  8 days ago      1.13 GB
-docker.io/library/python     3.12-slim      bad5eac7befe  8 days ago      123 MB
-mcr.microsoft.com/azure-cli  azurelinux3.0  77058ec760b7  2 weeks ago     688 MB
-localhost/orgkisst/kupibox   latest         e4e21add4dd3  30 minutes ago  1.32 GB
-localhost/orgkisst/kubebox   latest         cb1ddfa53975  20 minutes ago  401 MB
-localhost/orgkisst/kubibox   latest         5127fe9c70c8  20 minutes ago  468 MB
-localhost/orgkisst/kawsbox   latest         1bf7425a1d32  6 minutes ago   626 MB
-localhost/orgkisst/kawisbox  latest         6d298be9ef25  5 minutes ago   694 MB
+$ podman images --sort repository | grep -v none
+REPOSITORY                  TAG          IMAGE ID      CREATED      SIZE
+docker.io/library/debian    trixie       047bd8d81940  8 days ago   124 MB
+docker.io/library/debian    trixie-slim  c4f2d356126a  8 days ago   81 MB
+localhost/orgkisst/kaazbox  full         1c72b7dd9745  5 hours ago  1.19 GB
+localhost/orgkisst/kaazbox  slim         6bc4b5710492  5 hours ago  1.06 GB
+localhost/orgkisst/kawsbox  full         d25d50616ffa  5 hours ago  754 MB
+localhost/orgkisst/kawsbox  slim         507f8e63eb8b  5 hours ago  637 MB
+localhost/orgkisst/kubebox  full         9169edef4802  5 hours ago  528 MB
+localhost/orgkisst/kubebox  slim         30ddf25040d3  4 hours ago  373 MB
+localhost/orgkisst/kubebox  superslim    c002eb552318  4 hours ago  239 MB
 ```
