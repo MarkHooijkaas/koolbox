@@ -3,5 +3,5 @@ set -eu
 
 script_dir=$(dirname ${BASH_SOURCE[0]})
 
-$script_dir/build-kubebox-image "${@}" -b
-$script_dir/build-kubibox-image "${@}" -b
+$script_dir/build-kubebox-slim-image "${@}"
+$script_dir/build-kubebox-image "${@}"

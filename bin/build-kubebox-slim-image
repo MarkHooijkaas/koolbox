@@ -7,8 +7,6 @@ export KOOLBOX_BUILD_FROM=debian:trixie-slim
 export KOOLBOX_IMAGE_NAME=kubebox
 export KOOLBOX_BUILD_TAGS="slim" # "trixie-slim deb13-slim"
 
-export KOOLBOX_INSTALL_APT_PACKAGES="python3" # not needed if we use python as base image
-export KOOLBOX_INSTALL_SCRIPTS=""
 source $script_dir/inc/kubebox-apt.inc
 
 $script_dir/koolbox-image-builder "${@}"

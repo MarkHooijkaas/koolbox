@@ -3,11 +3,10 @@ set -eu
 
 script_dir=$(dirname ${BASH_SOURCE[0]})
 
-export KOOLBOX_BUILD_FROM=debian:12
-export KOOLBOX_IMAGE_NAME=kubibox
+export KOOLBOX_BUILD_FROM=debian:trixie
+export KOOLBOX_IMAGE_NAME=kubebox
+export KOOLBOX_BUILD_TAGS="full"
 
-export KOOLBOX_INSTALL_APT_PACKAGES="python3" # not needed if we use python as base image
-export KOOLBOX_INSTALL_SCRIPTS=""
 source $script_dir/inc/kubebox-apt.inc
 source $script_dir/inc/interactive-apt.inc
 

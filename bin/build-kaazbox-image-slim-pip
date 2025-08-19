@@ -3,12 +3,11 @@ set -eu
 
 script_dir=$(dirname ${BASH_SOURCE[0]})
 
-export KOOLBOX_BUILD_FROM=kubebox
+export KOOLBOX_BUILD_FROM=kubebox:slim
 export KOOLBOX_IMAGE_NAME=kaazbox
+export KOOLBOX_BUILD_TAGS="slim-pip"
 
 export KOOLBOX_INSTALL_APT_PACKAGES="pip"
 export KOOLBOX_INSTALL_SCRIPTS="apt-packages azure-cli-pip"
-
-export KOOLBOX_BUILD_TAGS="pip"
 
 $script_dir/koolbox-image-builder "${@}"
