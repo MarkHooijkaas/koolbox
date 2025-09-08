@@ -45,4 +45,36 @@ localhost/orgkisst/kubebox  superslim    c002eb552318  4 hours ago  239 MB
 ```
 
 # TODO
-Many packages, still can be added, like: k9s, plugins helm-diff, kubent, krew, kubectl-clean, ...
+- Many packages, still can be added .
+  * **script**:  plugins helm-diff, kubent, krew
+  * **interactive**: k9s
+- add krew and install some krew packages:
+  * **script**: allctx, kubectx, kubens, foreach, kubectl-clean, popeye
+  * **interactive**: kube-score, apidocs, rakkess, compare, cond, cost, df-pv, pug, explore, fuzzy, doctor, stern/kail, rolesum, capacity, reap, pv-mounter, pv-migrate, tree, kubecm?, kor, ktop, outdated, pods-on,
+  * unknown: evict-pod?
+- shell completions for bash (and zsh, fish, ...)
+
+
+# root or non root?
+The scripts can be run in different scenarios:
+# script is run as root, should be installed to be used for all users
+This seems to be the best default for in a podman rootless container.
+It can also be invoked using `sudo` on the install scripts
+
+- complete packages preferably installed in `/opt/<package>`
+- binaries with symlinks from `/usr/local/bin`
+- `kubectl-krew` in `/opt/krew` (`KREW_ROOT`) needs it's own `bin` directory appended to the `PATH`
+- `helm` plugings in `/opt/helm-plugins` with `HELM_PLUGINS`
+
+# script is run as a user and should be installed only for that user
+- Single binary
+  install in `/.local/bin` complete packages preferably installed in `~/local/share/<package>`
+- binaries with symlinks from `~/.local/bin`
+- `kubectl-krew` plugins in `~/.local/lib/krew` (`KREW_ROOT`).
+   This needs it's own `bin` directory appended to the `PATH`
+- `helm` plugings in `~/.local/lib//helm-plugins` with `HELM_PLUGINS`
+
+
+- Option 2 seems to be desirable if you want to use the scripts on your on machine without container.
+  It might also be desirable within a container, but not sure how yet.
+- Option 3 seems to be too complex, better than to use `sudo <install-script>` and use option 1.

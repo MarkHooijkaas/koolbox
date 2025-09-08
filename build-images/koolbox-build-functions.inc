@@ -1,16 +1,23 @@
-#!/usr/bin/bash
+set -eu
 
-: ${KOOLBOX_BUILD_CMD:=less}
-: ${KOOLBOX_BUILD_INTERACTIVE:=true}
-: ${KOOLBOX_FILE:=config/all.kool}
-: ${KOOLBOX_BUILD_FROM:=ubuntu:24.04}
+source $(dirname ${BASH_SOURCE[0]})/versions.inc
 
-koolbox_main() {
+: ${KOOLBOX_BUILD_TAGS:=$KOOLBOX_VERSION}
+: ${KOOLBOX_BUILD_OPTIONS:=""}
+
+
+#: ${KOOLBOX_FILE:=config/all.kool}
+#: ${KOOLBOX_BUILD_FROM:=debian:trixie}
+
+
+
+function koolbox_build_main() {
+    cmd=view-container-file
     koolbox_parse_options "$@"
-    koolbox_create_dockerfile
+    $cmd
 }
 
-koolbox_parse_options() {
+function koolbox_parse_options() {
     while [ ! $# -eq 0 ]; do
         case $1 in
             -h|--help)
@@ -18,10 +25,10 @@ koolbox_parse_options() {
                 exit 0
                 ;;
             -b|--build)
-                KOOLBOX_BUILD_CMD=koolbox_build_from_stdin
+                cmd=build-image
                 ;;
             -v|--view)
-                KOOLBOX_BUILD_CMD='less'
+                cmd=view-container-file
                 ;;
             -n|--no-cache)
                 KOOLBOX_PODMAN_BUILD_OPTIONS+=" --no-cache"
@@ -35,21 +42,22 @@ koolbox_parse_options() {
     done
 }
 
-koolbox_build_from_stdin() {
-    # TODO: look at --squash and --layers options for build: https://github.com/containers/buildah/issues/1234#issuecomment-534685356
-    : ${KOOLBOX_IMAGE_NAME:=koolbox}
+
+function view-container-file() {
+    create-container-file
+}
+
+
+build-image() {
     options=${KOOLBOX_PODMAN_BUILD_OPTIONS:-}
     for tag in ${KOOLBOX_BUILD_TAGS:-latest}; do
-        options+=" --tag orgkisst/$KOOLBOX_IMAGE_NAME:$tag"
+        options+=" --tag orgkisst/$KOOLBOX_BUILD_IMAGE_NAME:$tag"
     done
-    cat <<EOF
-*** Building image $KOOLBOX_IMAGE_NAME
-***    apt install: $KOOLBOX_INSTALL_APT_PACKAGES
-***    install-scripts for: $KOOLBOX_INSTALL_SCRIPTS
-EOF
+
     export KOOLBOX_INSTALL_APT_PACKAGES="${KOOLBOX_INSTALL_APT_PACKAGES}"
-    podman build koolbox-files --progress=plain -f - $options && \
-    echo finished building;  podman images | grep  "${KOOLBOX_IMAGE_NAME}"
+    export KOOLBOX_INSTALL_SCRIPTS
+    create-container-file | podman build --progress=plain -f - $options . && \
+    echo finished building;  podman images | grep  "${KOOLBOX_BUILD_IMAGE_NAME}"
 }
 
 #####################################################################
@@ -74,31 +82,30 @@ koolbox_install_commands() {
     done
 }
 
+koolbox_build_env_filename() {
+    echo /etc/koolbox/$KOOLBOX_BUILD_IMAGE_NAME.build.env
+}
 
-koolbox_create_dockerfile() {
-    : ${KOOLBOX_BASE_IMAGE:=ubuntu:22.04}
-    : ${KOOLBOX_USER_NAME:=kooluser}
-    : ${KOOLBOX_USER_UID:=1000}
-    : ${KOOLBOX_USER_GROUP:=${KOOLBOX_USER_NAME}}
-    : ${KOOLBOX_USER_GID:=1000}
-    : ${KOOLBOX_USER_HOME:=/home/${KOOLBOX_USER_NAME}}
-    cat <<EOF | $KOOLBOX_BUILD_CMD
-# syntax = docker/dockerfile:1.2
-#########################################################
-FROM $KOOLBOX_BUILD_FROM
-
-COPY bin /opt/koolbox/bin
-COPY <<EOT /etc/koolbox/$KOOLBOX_IMAGE_NAME.build.env
+koolbox_create_build_env_file() {
+cat <<EOF
+COPY <<EOT $(koolbox_build_env_filename)
 $(set | grep -E '^KOOLBOX_INSTALL|^KOOLBOX_BUILD' | sed 's/^/export /')
 EOT
+EOF
+}
+
+function create-container-file() {
+cat <<EOF
+FROM ${KOOLBOX_BUILD_FROM}
+$(koolbox_create_build_env_file)
+
+COPY bin /opt/koolbox/bin
 
 RUN <<EOT bash
-source /etc/koolbox/${KOOLBOX_IMAGE_NAME}.build.env
+source $(koolbox_build_env_filename)
 $(koolbox_install_commands)
 EOT
 
 CMD ["/bin/bash"]
 EOF
 }
-
-koolbox_main "${@}"

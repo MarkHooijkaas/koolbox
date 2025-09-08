@@ -69,8 +69,12 @@ function koolbox_load_config() {
 function koolbox_run() {
     KOOLBOX_RUN_OPTIONS+=" --env HOME"
     KOOLBOX_RUN_OPTIONS+=" --workdir $(pwd)"
+    # disable se_linux
+    KOOLBOX_RUN_OPTIONS+=" --security-opt label=disable"
+    KOOLBOX_RUN_OPTIONS+=" --userns keep-id"
+    KOOLBOX_RUN_MOUNTS=$HOME
     for path in $KOOLBOX_RUN_MOUNTS; do
-        KOOLBOX_RUN_OPTIONS+=" -v $path:$path:Z"
+        KOOLBOX_RUN_OPTIONS+=" -v $path:$path"
     done
     podman run -it --rm  $KOOLBOX_RUN_OPTIONS $KOOLBOX_RUN_IMAGE "${@}"
 }

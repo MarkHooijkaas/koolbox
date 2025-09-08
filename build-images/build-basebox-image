@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -eu
+source $(dirname ${BASH_SOURCE[0]})/koolbox-build-functions.inc
+
+
+: ${KOOLBOX_BUILD_IMAGE_NAME:=basebox}
+: ${KOOLBOX_BUILD_FROM:=debian:trixie}
+
+KOOLBOX_INSTALL_APT_PACKAGES="curl ca-certificates git wget unzip zip less"
+KOOLBOX_INSTALL_SCRIPTS="apt-packages"
+
+function create-container-file2() {
+cat <<EOF
+FROM ${KOOLBOX_BUILD_FROM}
+$(koolbox_create_build_env_file)
+
+COPY bin /opt/koolbox/bin
+
+RUN <<EOT bash
+source $(koolbox_build_env_filename)
+/opt/koolbox/bin/koolbox-install-apt-packages.sh
+EOT
+
+CMD ["/bin/bash"]
+EOF
+}
+
+
+koolbox_build_main "${@}"
