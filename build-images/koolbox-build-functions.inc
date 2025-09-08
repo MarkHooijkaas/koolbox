@@ -79,7 +79,9 @@ EOF
 
 koolbox_install_commands() {
     for app in ${KOOLBOX_INSTALL_SCRIPTS}; do
-        echo /opt/koolbox/bin/koolbox-install-${app}.sh
+        if [[ ! $app==os-packages ]]; then
+            echo /opt/koolbox/bin/koolbox-install-${app}.sh
+        fi
     done
 }
 
@@ -95,15 +97,33 @@ EOT
 EOF
 }
 
+function koolbox_copy_install_files() {
+    files=""
+    count=0
+    for app in ${KOOLBOX_COPY_SCRIPTS:-${KOOLBOX_INSTALL_SCRIPTS}}; do
+        files+=" bin/koolbox-install-${app}.sh"
+        count=$((count+1))
+    done
+    if [[ $count == 0 ]]; then
+        echo "# NO install scripts to copy"
+    elif [[ $count==1 ]]; then
+        # copy just one file to exact filename
+        echo "COPY $files /opt/koolbox/bin/koolbox-install-$app.sh"
+    else
+        # copy just multiple file to directory
+        echo "COPY $files /opt/koolbox/bin/"
+    fi
+}
+
 function create-container-file() {
 cat <<EOF
 FROM ${KOOLBOX_BUILD_FROM_IMAGE_NAME}:${KOOLBOX_BUILD_FROM_IMAGE_TAG}
 $(koolbox_create_build_env_file)
-
-COPY bin /opt/koolbox/bin
+$(koolbox_copy_install_files)
 
 RUN <<EOT bash
 source $(koolbox_build_env_filename)
+/opt/koolbox/bin/koolbox-install-os-packages.sh"
 $(koolbox_install_commands)
 EOT
 

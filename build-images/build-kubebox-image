@@ -15,5 +15,4 @@ source $(dirname ${BASH_SOURCE[0]})/koolbox-build-functions.inc
 KOOLBOX_INSTALL_SCRIPTS="kubectl"
 
 
-
 koolbox_build_main "${@}"

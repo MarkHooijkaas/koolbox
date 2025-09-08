@@ -11,6 +11,6 @@ source $(dirname ${BASH_SOURCE[0]})/koolbox-build-functions.inc
 KOOLBOX_INSTALL_APT_PACKAGES="curl ca-certificates git wget unzip zip less"
 KOOLBOX_INSTALL_DNF_PACKAGES="curl ca-certificates git wget unzip zip less"
 
-KOOLBOX_INSTALL_SCRIPTS="os-packages"
+KOOLBOX_COPY_SCRIPTS="os-packages"
 
 koolbox_build_main "${@}"
