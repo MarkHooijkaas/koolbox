@@ -1,9 +1,17 @@
 #!/usr/bin/env bash
 
 if type dnf ; then
+    if [[ -z ${KOOLBOX_INSTALL_DNF_PACKAGES:-} ]]; Then
+        echo "No dnf package to install"
+        return 0
+    fi
     echo installing dnf packages '['$KOOLBOX_INSTALL_DNF_PACKAGES']'
     dnf --yes install $KOOLBOX_INSTALL_DNF_PACKAGES
 else
+    if [[ -z ${KOOLBOX_INSTALL_APT_PACKAGES:-} ]]; Then
+        echo "No apt package to install"
+        return 0
+    fi
     echo installing apt packages '['$KOOLBOX_INSTALL_APT_PACKAGES']'
 
     export DEBIAN_FRONTEND=noninteractive
