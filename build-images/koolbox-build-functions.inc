@@ -97,7 +97,7 @@ EOF
 
 function create-container-file() {
 cat <<EOF
-FROM ${KOOLBOX_BUILD_FROM}
+FROM ${KOOLBOX_BUILD_FROM_IMAGE_NAME}:${KOOLBOX_BUILD_FROM_IMAGE_TAG}
 $(koolbox_create_build_env_file)
 
 COPY bin /opt/koolbox/bin

@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
 set -eu
+source $(dirname ${BASH_SOURCE[0]})/koolbox-build-functions.inc
 
-script_dir=$(dirname ${BASH_SOURCE[0]})
+: ${KOOLBOX_BUILD_IMAGE_NAME:=kubebox}
+: ${KOOLBOX_BUILD_IMAGE_SUBTAG=trixie}
+: ${KOOLBOX_BUILD_FROM_IMAGE_NAME:=basebox}
+: ${KOOLBOX_BUILD_FROM_IMAGE_TAG:=${KOOLBOX_VERSION}-${KOOLBOX_BUILD_IMAGE_SUBTAG}}
 
-export KOOLBOX_BUILD_FROM=debian:trixie
-export KOOLBOX_IMAGE_NAME=kubebox
-export KOOLBOX_BUILD_TAGS="full"
+#KOOLBOX_INSTALL_APT_PACKAGES="curl ca-certificates git wget unzip zip less"
+#KOOLBOX_INSTALL_DNF_PACKAGES="curl ca-certificates git wget unzip zip less"
+#source $script_dir/inc/kubebox-apt.inc
+#source $script_dir/inc/interactive-apt.inc
 
-source $script_dir/inc/kubebox-apt.inc
-source $script_dir/inc/interactive-apt.inc
+KOOLBOX_INSTALL_SCRIPTS="kubectl"
 
-$script_dir/koolbox-image-builder "${@}"
+
+
+koolbox_build_main "${@}"

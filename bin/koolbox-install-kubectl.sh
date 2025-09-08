@@ -15,6 +15,7 @@ else
     curl -LO "https://dl.k8s.io/release/${KOOLBOX_INSTALL_KUBECTL_VERSION}/bin/linux/amd64/kubectl"
 fi
 koolbox_install_file_version kubectl ${KOOLBOX_INSTALL_KUBECTL_VERSION}
+rm kubectl
 
 # Old Ubuntu way
 #export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
