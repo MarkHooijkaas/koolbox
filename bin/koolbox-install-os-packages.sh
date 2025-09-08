@@ -6,7 +6,9 @@ if type dnf 2>/dev/null; then
         exit 0
     fi
     echo installing dnf packages '['$KOOLBOX_INSTALL_DNF_PACKAGES']'
-    dnf --yes install $KOOLBOX_INSTALL_DNF_PACKAGES
+    dnf install -y $KOOLBOX_INSTALL_DNF_PACKAGES
+    #rm -rf /var/cache/dnf
+    dnf clean all
 else
     if [[ -z ${KOOLBOX_INSTALL_APT_PACKAGES:-} ]]; then
         echo "No apt package to install"

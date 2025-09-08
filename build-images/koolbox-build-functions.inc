@@ -35,6 +35,9 @@ function koolbox_parse_options() {
             -s|--slim)
                 KOOLBOX_BUILD_IMAGE_SUBTAG=trixie-slim
                 ;;
+            -a|--alma)
+                KOOLBOX_BUILD_IMAGE_SUBTAG=alma9
+                ;;
             *)  # Default case: No more options, so break out of the loop.
                 echo Unknown option $1
                 koolbox_help

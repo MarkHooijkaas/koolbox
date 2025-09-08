@@ -6,11 +6,16 @@ koolbox_parse_options "$@"
 
 : ${KOOLBOX_BUILD_IMAGE_NAME:=basebox}
 : ${KOOLBOX_BUILD_IMAGE_SUBTAG=trixie}
-: ${KOOLBOX_BUILD_FROM_IMAGE_NAME:=debian}
-: ${KOOLBOX_BUILD_FROM_IMAGE_TAG:=${KOOLBOX_BUILD_IMAGE_SUBTAG}}
+if [[ $KOOLBOX_BUILD_IMAGE_SUBTAG == alma9 ]]; then
+    : ${KOOLBOX_BUILD_FROM_IMAGE_NAME:=almalinux}
+    : ${KOOLBOX_BUILD_FROM_IMAGE_TAG:=9}
+else
+    : ${KOOLBOX_BUILD_FROM_IMAGE_NAME:=debian}
+    : ${KOOLBOX_BUILD_FROM_IMAGE_TAG:=${KOOLBOX_BUILD_IMAGE_SUBTAG}}
+fi
 
 KOOLBOX_INSTALL_APT_PACKAGES="curl ca-certificates git wget unzip zip less"
-KOOLBOX_INSTALL_DNF_PACKAGES="curl ca-certificates git wget unzip zip less"
+KOOLBOX_INSTALL_DNF_PACKAGES="ca-certificates git-core wget unzip zip less"
 
 KOOLBOX_COPY_SCRIPTS="os-packages init"
 
