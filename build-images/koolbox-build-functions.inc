@@ -2,7 +2,6 @@ set -eu
 
 source $(dirname ${BASH_SOURCE[0]})/versions.inc
 
-: ${KOOLBOX_BUILD_TAGS:=$KOOLBOX_VERSION}
 : ${KOOLBOX_BUILD_OPTIONS:=""}
 
 
@@ -49,13 +48,15 @@ function view-container-file() {
 
 
 build-image() {
+    : ${KOOLBOX_BUILD_IMAGE_TAGS:=${KOOLBOX_VERSION}-${KOOLBOX_BUILD_IMAGE_SUBTAG}}
+
     options=${KOOLBOX_PODMAN_BUILD_OPTIONS:-}
-    for tag in ${KOOLBOX_BUILD_TAGS:-latest}; do
-        options+=" --tag orgkisst/$KOOLBOX_BUILD_IMAGE_NAME:$tag"
+    for tag in ${KOOLBOX_BUILD_IMAGE_TAGS:-latest}; do
+        options+=" --tag orgkisst/$KOOLBOX_BUILD_IMAGE_NAME:${tag}"
     done
 
-    export KOOLBOX_INSTALL_APT_PACKAGES="${KOOLBOX_INSTALL_APT_PACKAGES}"
-    export KOOLBOX_INSTALL_SCRIPTS
+    #export KOOLBOX_INSTALL_APT_PACKAGES
+    #export KOOLBOX_INSTALL_SCRIPTS
     create-container-file | podman build --progress=plain -f - $options . && \
     echo finished building;  podman images | grep  "${KOOLBOX_BUILD_IMAGE_NAME}"
 }
@@ -83,7 +84,7 @@ koolbox_install_commands() {
 }
 
 koolbox_build_env_filename() {
-    echo /etc/koolbox/$KOOLBOX_BUILD_IMAGE_NAME.build.env
+    echo /etc/koolbox/build.env.$KOOLBOX_BUILD_IMAGE_NAME-${KOOLBOX_VERSION}-${KOOLBOX_BUILD_IMAGE_SUBTAG}
 }
 
 koolbox_create_build_env_file() {
