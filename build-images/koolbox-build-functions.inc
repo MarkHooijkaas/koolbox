@@ -11,12 +11,12 @@ source $(dirname ${BASH_SOURCE[0]})/versions.inc
 
 
 function koolbox_build_main() {
-    cmd=view-container-file
     koolbox_parse_options "$@"
-    $cmd
+    $build_cmd
 }
 
 function koolbox_parse_options() {
+    build_cmd=view-container-file
     while [ ! $# -eq 0 ]; do
         case $1 in
             -h|--help)
@@ -24,13 +24,16 @@ function koolbox_parse_options() {
                 exit 0
                 ;;
             -b|--build)
-                cmd=build-image
+                build_cmd=build-image
                 ;;
             -v|--view)
-                cmd=view-container-file
+                build_cmd=view-container-file
                 ;;
             -n|--no-cache)
                 KOOLBOX_PODMAN_BUILD_OPTIONS+=" --no-cache"
+                ;;
+            -s|--slim)
+                KOOLBOX_BUILD_IMAGE_SUBTAG=trixie-slim
                 ;;
             *)  # Default case: No more options, so break out of the loop.
                 echo Unknown option $1
@@ -78,10 +81,8 @@ EOF
 }
 
 koolbox_install_commands() {
-    for app in ${KOOLBOX_INSTALL_SCRIPTS}; do
-        if [[ ! $app==os-packages ]]; then
-            echo /opt/koolbox/bin/koolbox-install-${app}.sh
-        fi
+    for app in ${KOOLBOX_INSTALL_SCRIPTS:-}; do
+        echo /opt/koolbox/bin/koolbox-install-${app}.sh
     done
 }
 
@@ -106,7 +107,7 @@ function koolbox_copy_install_files() {
     done
     if [[ $count == 0 ]]; then
         echo "# NO install scripts to copy"
-    elif [[ $count==1 ]]; then
+    elif [[ $count == 1 ]]; then
         # copy just one file to exact filename
         echo "COPY $files /opt/koolbox/bin/koolbox-install-$app.sh"
     else
@@ -123,7 +124,7 @@ $(koolbox_copy_install_files)
 
 RUN <<EOT bash
 source $(koolbox_build_env_filename)
-/opt/koolbox/bin/koolbox-install-os-packages.sh"
+/opt/koolbox/bin/koolbox-install-os-packages.sh
 $(koolbox_install_commands)
 EOT
 

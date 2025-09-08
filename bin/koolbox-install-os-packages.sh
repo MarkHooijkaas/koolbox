@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 
-if type dnf ; then
-    if [[ -z ${KOOLBOX_INSTALL_DNF_PACKAGES:-} ]]; Then
+if type dnf 2>/dev/null; then
+    if [[ -z ${KOOLBOX_INSTALL_DNF_PACKAGES:-} ]]; then
         echo "No dnf package to install"
-        return 0
+        exit 0
     fi
     echo installing dnf packages '['$KOOLBOX_INSTALL_DNF_PACKAGES']'
     dnf --yes install $KOOLBOX_INSTALL_DNF_PACKAGES
 else
-    if [[ -z ${KOOLBOX_INSTALL_APT_PACKAGES:-} ]]; Then
+    if [[ -z ${KOOLBOX_INSTALL_APT_PACKAGES:-} ]]; then
         echo "No apt package to install"
-        return 0
+        exit 0
     fi
     echo installing apt packages '['$KOOLBOX_INSTALL_APT_PACKAGES']'
 

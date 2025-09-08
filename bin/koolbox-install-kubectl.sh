@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-source $(dirname "${BASH_SOURCE[0]}")/koolbox-init-install.inc
+source $(dirname "${BASH_SOURCE[0]}")/koolbox-install-init.sh
 
 
 
