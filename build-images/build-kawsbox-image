@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 set -eu
+source $(dirname ${BASH_SOURCE[0]})/koolbox-build-functions.inc
 
-script_dir=$(dirname ${BASH_SOURCE[0]})
+koolbox_build_init "$@"
 
-export KOOLBOX_BUILD_FROM=kubebox:full
-export KOOLBOX_IMAGE_NAME=kawsbox
-export KOOLBOX_BUILD_TAGS="full"
+KOOLBOX_BUILD_IMAGE_NAME=kawsbox
+KOOLBOX_BUILD_FROM_IMAGE_NAME=kubebox
 
-export KOOLBOX_INSTALL_APT_PACKAGES=""
-export KOOLBOX_INSTALL_SCRIPTS="aws-cli"
 
-$script_dir/koolbox-image-builder "${@}"
+KOOLBOX_INSTALL_SCRIPTS="aws-cli"
+
+if ${KOOLBOX_BUILD_FULL}; then
+    KOOLBOX_INSTALL_SCRIPTS+=" kubectl-bash-completion"
+fi
+
+koolbox_build_image "${@}"
