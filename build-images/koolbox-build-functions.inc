@@ -17,6 +17,7 @@ function koolbox_build_main() {
 
 function koolbox_parse_options() {
     build_cmd=view-container-file
+    KOOLBOX_BUILD_FULL=false
     while [ ! $# -eq 0 ]; do
         case $1 in
             -h|--help)
@@ -32,11 +33,12 @@ function koolbox_parse_options() {
             -n|--no-cache)
                 KOOLBOX_PODMAN_BUILD_OPTIONS+=" --no-cache"
                 ;;
-            -s|--slim)
-                KOOLBOX_BUILD_IMAGE_SUBTAG=trixie-slim
+            -f|--full)
+                KOOLBOX_BUILD_FULL=true
                 ;;
-            -a|--alma)
-                KOOLBOX_BUILD_IMAGE_SUBTAG=alma9
+            -t|--tag)
+                KOOLBOX_BUILD_IMAGE_SUBTAG=$2
+                shift
                 ;;
             *)  # Default case: No more options, so break out of the loop.
                 echo Unknown option $1
@@ -45,27 +47,12 @@ function koolbox_parse_options() {
         esac
         shift
     done
+    if [[ ${KOOLBOX_BUILD_IMAGE_SUBTAG:-} == *-full ]]; then
+        KOOLBOX_BUILD_FULL=true
+    fi
 }
 
 
-function view-container-file() {
-    create-container-file
-}
-
-
-build-image() {
-    : ${KOOLBOX_BUILD_IMAGE_TAGS:=${KOOLBOX_VERSION}-${KOOLBOX_BUILD_IMAGE_SUBTAG}}
-
-    options=${KOOLBOX_PODMAN_BUILD_OPTIONS:-}
-    for tag in ${KOOLBOX_BUILD_IMAGE_TAGS:-latest}; do
-        options+=" --tag orgkisst/$KOOLBOX_BUILD_IMAGE_NAME:${tag}"
-    done
-
-    #export KOOLBOX_INSTALL_APT_PACKAGES
-    #export KOOLBOX_INSTALL_SCRIPTS
-    create-container-file | podman build --progress=plain -f - $options . && \
-    echo finished building;  podman images | grep  "${KOOLBOX_BUILD_IMAGE_NAME}"
-}
 
 #####################################################################
 
@@ -80,6 +67,8 @@ Options can be:
     -b|--build       build the docker image
     -n|--no-cache    don't use the cache of previous builds
     -v|--view        view the Dockerfile without building it (default)
+    -t|--tag <tag>   the type of image like deb13-slim or alma9-full
+    -f|--full        build a full image (automatically set if tag ends with "-full")
 EOF
 }
 
@@ -119,9 +108,33 @@ function koolbox_copy_install_files() {
     fi
 }
 
+
+function view-container-file() {
+    calc-build-options
+    create-container-file
+}
+
+function build-image() {
+    calc-build-options
+    create-container-file | podman build --progress=plain -f - $KOOLBOX_BUILD_OPTIONS .
+    #echo finished building;  podman images | grep  "${KOOLBOX_BUILD_IMAGE_NAME}"
+}
+
+function calc-build-options() {
+    : ${KOOLBOX_BUILD_IMAGE_TAGS:=${KOOLBOX_VERSION}-${KOOLBOX_BUILD_IMAGE_SUBTAG}}
+    KOOLBOX_BUILD_OPTIONS=${KOOLBOX_PODMAN_BUILD_OPTIONS:-}
+    for tag in ${KOOLBOX_BUILD_IMAGE_TAGS:-latest}; do
+        KOOLBOX_BUILD_OPTIONS+=" --tag orgkisst/$KOOLBOX_BUILD_IMAGE_NAME:${tag}"
+    done
+}
+
 function create-container-file() {
-cat <<EOF
-FROM ${KOOLBOX_BUILD_FROM_IMAGE_NAME}:${KOOLBOX_BUILD_FROM_IMAGE_TAG}
+    cat <<EOF
+FROM ${KOOLBOX_BUILD_FROM_IMAGE}
+LABEL \
+  koolbox.version="${KOOLBOX_VERSION}" \
+  koolbox.subtag="${KOOLBOX_BUILD_IMAGE_SUBTAG}"
+
 $(koolbox_create_build_env_file)
 $(koolbox_copy_install_files)
 

@@ -3,19 +3,28 @@ set -eu
 source $(dirname ${BASH_SOURCE[0]})/koolbox-build-functions.inc
 koolbox_parse_options "$@"
 
+KOOLBOX_BUILD_IMAGE_NAME=basebox
 
-: ${KOOLBOX_BUILD_IMAGE_NAME:=basebox}
-: ${KOOLBOX_BUILD_IMAGE_SUBTAG=trixie}
-if [[ $KOOLBOX_BUILD_IMAGE_SUBTAG == alma9 ]]; then
-    : ${KOOLBOX_BUILD_FROM_IMAGE_NAME:=almalinux}
-    : ${KOOLBOX_BUILD_FROM_IMAGE_TAG:=9}
-else
-    : ${KOOLBOX_BUILD_FROM_IMAGE_NAME:=debian}
-    : ${KOOLBOX_BUILD_FROM_IMAGE_TAG:=${KOOLBOX_BUILD_IMAGE_SUBTAG}}
+case ${KOOLBOX_BUILD_IMAGE_SUBTAG:-} in
+    deb12-full)     KOOLBOX_BUILD_FROM_IMAGE=debian:12 ;;
+    deb13-full)     KOOLBOX_BUILD_FROM_IMAGE=debian:13 ;;
+    alma9-full)     KOOLBOX_BUILD_FROM_IMAGE=almalinux:9 ;;
+
+    deb12-slim)     KOOLBOX_BUILD_FROM_IMAGE=debian:12-slim ;;
+    deb13-slim)     KOOLBOX_BUILD_FROM_IMAGE=debian:13-slim ;;
+    alma9-minimal)  KOOLBOX_BUILD_FROM_IMAGE=almalinux:9-minimal ;;
+    *) if [[ -z ${KOOLBOX_BUILD_FROM_IMAGE:-} ]]; then
+        echo unknown/unset tag \[${KOOLBOX_BUILD_IMAGE_SUBTAG:-}\] and KOOLBOX_BUILD_FROM_IMAGE not set
+        exit 1
+    fi
+esac
+
+export KOOLBOX_INSTALL_APT_PACKAGES="curl ca-certificates git wget unzip zip less"
+export KOOLBOX_INSTALL_DNF_PACKAGES="ca-certificates git-core wget unzip zip less"
+if ${KOOLBOX_BUILD_FULL}; then
+    KOOLBOX_INSTALL_APT_PACKAGES+=" bash-completions"
+    KOOLBOX_INSTALL_DNF_PACKAGES+=" bash-completions"
 fi
-
-KOOLBOX_INSTALL_APT_PACKAGES="curl ca-certificates git wget unzip zip less"
-KOOLBOX_INSTALL_DNF_PACKAGES="ca-certificates git-core wget unzip zip less"
 
 KOOLBOX_COPY_SCRIPTS="os-packages init"
 
