@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -eu
 source $(dirname ${BASH_SOURCE[0]})/koolbox-build-functions.inc
-koolbox_parse_options "$@"
+
+koolbox_build_init "$@"
 
 KOOLBOX_BUILD_IMAGE_NAME=basebox
 
@@ -22,10 +23,10 @@ esac
 export KOOLBOX_INSTALL_APT_PACKAGES="curl ca-certificates git wget unzip zip less"
 export KOOLBOX_INSTALL_DNF_PACKAGES="ca-certificates git-core wget unzip zip less"
 if ${KOOLBOX_BUILD_FULL}; then
-    KOOLBOX_INSTALL_APT_PACKAGES+=" bash-completions"
+    KOOLBOX_INSTALL_APT_PACKAGES+=" bash-completion"
     KOOLBOX_INSTALL_DNF_PACKAGES+=" bash-completions"
 fi
 
 KOOLBOX_COPY_SCRIPTS="os-packages init"
 
-$build_cmd
+koolbox_build_image

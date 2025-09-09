@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source $(dirname "${BASH_SOURCE[0]}")/koolbox-init-install.inc
+source $(dirname "${BASH_SOURCE[0]}")/koolbox-install-init.sh
 
 # install completions
 if ${KOOLBOX_INSTALL_AS_ROOT}; then

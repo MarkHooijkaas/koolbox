@@ -2,19 +2,21 @@
 set -eu
 source $(dirname ${BASH_SOURCE[0]})/koolbox-build-functions.inc
 
-koolbox_parse_options "$@"
+koolbox_build_init "$@"
 
-: ${KOOLBOX_BUILD_IMAGE_NAME:=kubebox}
-: ${KOOLBOX_BUILD_IMAGE_SUBTAG=trixie}
-: ${KOOLBOX_BUILD_FROM_IMAGE_NAME:=basebox}
-: ${KOOLBOX_BUILD_FROM_IMAGE_TAG:=${KOOLBOX_VERSION}-${KOOLBOX_BUILD_IMAGE_SUBTAG}}
+KOOLBOX_BUILD_IMAGE_NAME=kubebox
+KOOLBOX_BUILD_FROM_IMAGE_NAME=basebox
 
-#KOOLBOX_INSTALL_APT_PACKAGES="curl ca-certificates git wget unzip zip less"
-#KOOLBOX_INSTALL_DNF_PACKAGES="curl ca-certificates git wget unzip zip less"
-#source $script_dir/inc/kubebox-apt.inc
-#source $script_dir/inc/interactive-apt.inc
+
+# old superslim KOOLBOX_INSTALL_APT_PACKAGES="curl ca-certificates "
+# old slim      KOOLBOX_INSTALL_APT_PACKAGES+="git jq netcat-openbsd net-tools openssh-client wget unzip zip python3"
+#export KOOLBOX_INSTALL_APT_PACKAGES="curl ca-certificates git wget unzip zip less"
+#export KOOLBOX_INSTALL_DNF_PACKAGES="ca-certificates git-core wget unzip zip less"
 
 KOOLBOX_INSTALL_SCRIPTS="kubectl"
 
+if ${KOOLBOX_BUILD_FULL}; then
+    KOOLBOX_INSTALL_SCRIPTS+=" kubectl-bash-completion"
+fi
 
-$build_cmd
+koolbox_build_image

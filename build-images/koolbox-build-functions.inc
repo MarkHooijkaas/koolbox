@@ -10,9 +10,8 @@ source $(dirname ${BASH_SOURCE[0]})/versions.inc
 
 
 
-function koolbox_build_main() {
+function koolbox_build_init() {
     koolbox_parse_options "$@"
-    $build_cmd
 }
 
 function koolbox_parse_options() {
@@ -108,6 +107,9 @@ function koolbox_copy_install_files() {
     fi
 }
 
+function koolbox_build_image() {
+    $build_cmd
+}
 
 function view-container-file() {
     calc-build-options
@@ -121,6 +123,9 @@ function build-image() {
 }
 
 function calc-build-options() {
+    : ${KOOLBOX_BUILD_FROM_IMAGE_TAG:=${KOOLBOX_VERSION}-${KOOLBOX_BUILD_IMAGE_SUBTAG}}
+    : ${KOOLBOX_BUILD_FROM_IMAGE:=${KOOLBOX_BUILD_FROM_IMAGE_NAME}:${KOOLBOX_BUILD_FROM_IMAGE_TAG}}
+
     : ${KOOLBOX_BUILD_IMAGE_TAGS:=${KOOLBOX_VERSION}-${KOOLBOX_BUILD_IMAGE_SUBTAG}}
     KOOLBOX_BUILD_OPTIONS=${KOOLBOX_PODMAN_BUILD_OPTIONS:-}
     for tag in ${KOOLBOX_BUILD_IMAGE_TAGS:-latest}; do
