@@ -19,26 +19,13 @@ function koolbox_parse_options() {
     KOOLBOX_BUILD_FULL=false
     while [ ! $# -eq 0 ]; do
         case $1 in
-            -h|--help)
-                koolbox_help
-                exit 0
-                ;;
-            -b|--build)
-                build_cmd=build-image
-                ;;
-            -v|--view)
-                build_cmd=view-container-file
-                ;;
-            -n|--no-cache)
-                KOOLBOX_PODMAN_BUILD_OPTIONS+=" --no-cache"
-                ;;
-            -f|--full)
-                KOOLBOX_BUILD_FULL=true
-                ;;
-            -t|--tag)
-                KOOLBOX_BUILD_IMAGE_SUBTAG=$2
-                shift
-                ;;
+            -h|--help)  koolbox_help; exit 0;;
+            -b|--build) build_cmd=build-image;;
+            -v|--view) build_cmd=view-container-file;;
+            -n|--no-cache) KOOLBOX_PODMAN_BUILD_OPTIONS+=" --no-cache" ;;
+            -p|--parent-build) KOOLBOX_BUILD_PARENT_IMAGE=true;;
+            -f|--full) KOOLBOX_BUILD_FULL=true;;
+            -t|--tag)  KOOLBOX_BUILD_IMAGE_SUBTAG=$2; shift;;
             *)  # Default case: No more options, so break out of the loop.
                 echo Unknown option $1
                 koolbox_help
@@ -108,16 +95,23 @@ function koolbox_copy_install_files() {
 }
 
 function koolbox_build_image() {
-    $build_cmd
+    $build_cmd "${@}"
 }
 
 function view-container-file() {
     calc-build-options
+    if ${KOOLBOX_BUILD_PARENT_IMAGE:-false}; then
+        echo \# First will build $(dirname ${BASH_SOURCE[0]})/build-${KOOLBOX_BUILD_FROM_IMAGE_NAME}-image "${@}"
+    fi
     create-container-file
 }
 
 function build-image() {
     calc-build-options
+    if ${KOOLBOX_BUILD_PARENT_IMAGE:-false}; then
+        echo build-${KOOLBOX_BUILD_FROM_IMAGE_NAME}-image  "${@}"
+        $(dirname ${BASH_SOURCE[0]})/build-${KOOLBOX_BUILD_FROM_IMAGE_NAME}-image  "${@}"
+    fi
     create-container-file | podman build --progress=plain -f - $KOOLBOX_BUILD_OPTIONS .
     #echo finished building;  podman images | grep  "${KOOLBOX_BUILD_IMAGE_NAME}"
 }

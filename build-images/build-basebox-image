@@ -4,6 +4,7 @@ source $(dirname ${BASH_SOURCE[0]})/koolbox-build-functions.inc
 
 koolbox_build_init "$@"
 
+
 KOOLBOX_BUILD_IMAGE_NAME=basebox
 
 case ${KOOLBOX_BUILD_IMAGE_SUBTAG:-} in
@@ -19,6 +20,7 @@ case ${KOOLBOX_BUILD_IMAGE_SUBTAG:-} in
         exit 1
     fi
 esac
+KOOLBOX_BUILD_PARENT_IMAGE=false # never build parent image
 
 export KOOLBOX_INSTALL_APT_PACKAGES="curl ca-certificates git wget unzip zip less"
 export KOOLBOX_INSTALL_DNF_PACKAGES="ca-certificates git-core wget unzip zip less"
@@ -29,4 +31,4 @@ fi
 
 KOOLBOX_COPY_SCRIPTS="os-packages init"
 
-koolbox_build_image
+koolbox_build_image "${@}"

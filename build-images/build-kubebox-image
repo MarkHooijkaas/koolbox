@@ -19,4 +19,4 @@ if ${KOOLBOX_BUILD_FULL}; then
     KOOLBOX_INSTALL_SCRIPTS+=" kubectl-bash-completion"
 fi
 
-koolbox_build_image
+koolbox_build_image "${@}"
