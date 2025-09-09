@@ -25,6 +25,7 @@ function koolbox_parse_options() {
             -n|--no-cache) KOOLBOX_PODMAN_BUILD_OPTIONS+=" --no-cache" ;;
             -p|--parent-build) KOOLBOX_BUILD_PARENT_IMAGE=true;;
             -f|--full) KOOLBOX_BUILD_FULL=true;;
+            -a|--all-scripts) KOOLBOX_BUILD_COPY_ALL_SCRIPTS=true;;
             -t|--tag)  KOOLBOX_BUILD_IMAGE_SUBTAG=$2; shift;;
             *)  # Default case: No more options, so break out of the loop.
                 echo Unknown option $1
@@ -55,6 +56,7 @@ Options can be:
     -v|--view        view the Dockerfile without building it (default)
     -t|--tag <tag>   the type of image like deb13-slim or alma9-full
     -f|--full        build a full image (automatically set if tag ends with "-full")
+    -a|--all-scripts copy all scripts to image (overwriting basebox scripts)
 EOF
 }
 
@@ -76,21 +78,9 @@ EOT
 EOF
 }
 
-function koolbox_copy_install_files() {
-    files=""
-    count=0
-    for app in ${KOOLBOX_COPY_SCRIPTS:-${KOOLBOX_INSTALL_SCRIPTS}}; do
-        files+=" bin/koolbox-install-${app}.sh"
-        count=$((count+1))
-    done
-    if [[ $count == 0 ]]; then
-        echo "# NO install scripts to copy"
-    elif [[ $count == 1 ]]; then
-        # copy just one file to exact filename
-        echo "COPY $files /opt/koolbox/bin/koolbox-install-$app.sh"
-    else
-        # copy just multiple file to directory
-        echo "COPY $files /opt/koolbox/bin/"
+function koolbox_copy_install_scripts() {
+    if ${KOOLBOX_BUILD_COPY_ALL_SCRIPTS:-false}; then
+        echo "COPY bin /opt/koolbox/bin/"
     fi
 }
 
@@ -135,7 +125,7 @@ LABEL \
   koolbox.subtag="${KOOLBOX_BUILD_IMAGE_SUBTAG}"
 
 $(koolbox_create_build_env_file)
-$(koolbox_copy_install_files)
+$(koolbox_copy_install_scripts)
 
 RUN <<EOT bash
 source $(koolbox_build_env_filename)

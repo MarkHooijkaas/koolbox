@@ -21,6 +21,7 @@ case ${KOOLBOX_BUILD_IMAGE_SUBTAG:-} in
     fi
 esac
 KOOLBOX_BUILD_PARENT_IMAGE=false # never build parent image
+KOOLBOX_BUILD_COPY_ALL_SCRIPTS=true
 
 export KOOLBOX_INSTALL_APT_PACKAGES="curl ca-certificates git wget unzip zip less"
 export KOOLBOX_INSTALL_DNF_PACKAGES="ca-certificates git-core wget unzip zip less"
