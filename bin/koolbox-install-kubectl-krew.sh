@@ -35,7 +35,7 @@ function install_krew() {
     ${cmd} install krew
 
     koolbox_verbose cleaning up remaining files
-    rm -f ${KREW_ROOT}/.??* ${KREW_ROOT}/*.tar.gz
+    rm -f ${KREW_ROOT}/.??* ${KREW_ROOT}/krew-*
 }
 
 main_install "${@}"
