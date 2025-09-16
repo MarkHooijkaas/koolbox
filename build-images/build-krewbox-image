@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -eu
+source $(dirname ${BASH_SOURCE[0]})/koolbox-build-functions.inc
+
+koolbox_build_init "$@"
+
+KOOLBOX_BUILD_IMAGE_NAME=krewbox
+KOOLBOX_BUILD_FROM_IMAGE_NAME=helmbox
+
+KOOLBOX_INSTALL_SCRIPTS="kubectl-krew krew-plugins"
+KOOLBOX_INSTALL_KREW_PLUGINS="ns ctx get-all"
+
+koolbox_build_image "${@}"
