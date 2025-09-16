@@ -13,11 +13,13 @@ if [[ $(id -u) == 0 ]] ;then
     : ${KOOLBOX_INSTALL_OPT_DIR:=/opt}
     : ${KOOLBOX_INSTALL_BIN_DIR:=/usr/local/bin}
     : ${KOOLBOX_INSTALL_BASH_COMPLETE_DIR:=/etc/bash_completions.d}
+    : ${KOOLBOX_INSTALL_PROFILE_FILE:=/etc/profile}
 else
     : ${KOOLBOX_INSTALL_CONFIG_DIR:=${XDG_CONFIG_HOME}/koolbox}
     : ${KOOLBOX_INSTALL_OPT_DIR:=~/opt}
     : ${KOOLBOX_INSTALL_BIN_DIR:=~/.local/bin}
     : ${KOOLBOX_INSTALL_BASH_COMPLETE_DIR:=${XDG_DATA_HOME}/bash-completion/completions}
+    : ${KOOLBOX_INSTALL_PROFILE_FILE:=~/.profile}
 fi
 
 function koolbox_use_apt() {
@@ -147,5 +149,26 @@ function install_with_link() {
     else
         koolbox_verbose linking  ${install_result_path} to ${download_result_path}
         ln -s ${download_result_path} ${install_result_path}
+    fi
+}
+
+
+function append_to_file() {
+    local file=$1
+    shift
+    local cmd="${@}"
+    if [[ -f $file ]]; then
+        pattern="^${cmd/\$/\\\$}$"
+        #echo $pattern
+        found=$(grep -E "^$pattern" $file) || true
+        if [ -z "$found" ] ; then
+            koolbox_info modifying $file by appending command: $cmd
+            echo $cmd >>$file
+        else
+            koolbox_info $file already includes $cmd
+        fi
+    else
+        koolbox_info creating new $file with command: $cmd
+        echo $cmd >>$file
     fi
 }

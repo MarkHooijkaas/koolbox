@@ -26,6 +26,10 @@ function download_krew() {
 }
 
 function install_krew() {
+    append_to_file ${KOOLBOX_INSTALL_PROFILE_FILE} "export KREW_ROOT=$KREW_ROOT"
+    append_to_file ${KOOLBOX_INSTALL_PROFILE_FILE} "PATH=\$PATH:$KREW_ROOT/bin"
+    source ${KOOLBOX_INSTALL_PROFILE_FILE}
+
     if [[ -f ${download_file-} ]]; then
         cmd=./${download_file}
     else
