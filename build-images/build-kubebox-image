@@ -15,8 +15,4 @@ KOOLBOX_BUILD_FROM_IMAGE_NAME=basebox
 
 KOOLBOX_INSTALL_SCRIPTS="kubectl"
 
-if ${KOOLBOX_BUILD_FULL}; then
-    KOOLBOX_INSTALL_SCRIPTS+=" kubectl-bash-completion"
-fi
-
 koolbox_build_image "${@}"

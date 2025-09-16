@@ -37,6 +37,10 @@ function koolbox_parse_options() {
     if [[ ${KOOLBOX_BUILD_IMAGE_SUBTAG:-} == *-full ]]; then
         KOOLBOX_BUILD_FULL=true
     fi
+    if [[ $KOOLBOX_BUILD_FULL != true ]]; then
+        KOOLBOX_INSTALL_COMPLETIONS=false
+    fi
+
 }
 
 
