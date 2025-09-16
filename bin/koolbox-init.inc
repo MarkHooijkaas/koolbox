@@ -43,12 +43,16 @@ function koolbox_info() {
     fi
 }
 
+#####################################################################
+
 function koolbox_parse_options() {
     while [ ! $# -eq 0 ]; do
         case $1 in
-            -h|--help)  koolbox_help; exit 0;;
+            -h|--help)    koolbox_help; exit 0;;
             -v|--verbose) KOOLBOX_VERBOSE=true; KOOLBOX_INFO=true;;
-            -q|--quiet) KOOLBOX_VERBOSE=false; KOOLBOX_INFO=false;;
+            -q|--quiet)   KOOLBOX_VERBOSE=false; KOOLBOX_INFO=false;;
+            -f|--force)   KOOLBOX_INSTALL_FORCE=true;;
+            -x)           set -x;;
             *)  # Default case: No more options, so break out of the loop.
                 echo Unknown option $1
                 koolbox_help
@@ -58,17 +62,38 @@ function koolbox_parse_options() {
     done
 }
 
-
-
-#####################################################################
-
 koolbox_help() {
     cat << EOF
 Usage: ${0##*/} [options]
 
 Options can be:
-    -h|--help        display this help and exit
-    -v|--verbose     show extra information during installation
-    -q|--quiet       don't show any information
+    -h|--help     display this help and exit
+    -v|--verbose  show extra information during installation
+    -q|--quiet    don't show any information
+    -x            bash set -x for further debugging
 EOF
+}
+
+#####################################################################
+
+function main_install() {
+    koolbox_parse_options "${@}"
+    if already_installed; then
+        koolbox_info ${package_name} already installed
+        if ${KOOLBOX_INSTALL_FORCE:-false}; then
+            koolbox_info force installing package anyway
+            install_${package_name}
+        fi
+    else
+        koolbox_info installing ${package_name}
+        install_${package_name}
+    fi
+}
+
+function already_installed() {
+    if [[ -f ${package_file} ]]; then
+        return 0
+    else
+        return 1
+    fi
 }

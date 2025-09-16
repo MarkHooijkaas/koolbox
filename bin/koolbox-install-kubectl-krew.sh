@@ -1,34 +1,35 @@
 #!/usr/bin/env bash
+set -ue
 
-source $(dirname "${BASH_SOURCE[0]}")/koolbox-init-install.inc
+source $(dirname "${BASH_SOURCE[0]}")/koolbox-init.inc
 
+export KREW_ROOT=${KOOLBOX_INSTALL_OPT_DIR}/krew
 
+package_name=krew
+package_file=${KREW_ROOT}/bin/kubectl-krew
 
-set -x
-tmpdir="$(mktemp -d)"
-cd $tmpdir
-OS="$(uname | tr '[:upper:]' '[:lower:]')"
-ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')"
-KREW="krew-${OS}_${ARCH}"
-curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" || true
+function install_krew() {
+    local os="$(uname | tr '[:upper:]' '[:lower:]')"
+    local arch="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')"
+    local download_file="krew-${os}_${arch}"
 
-# tar gives errors, because it has some MacOS specific values
-tar zxvf "${KREW}.tar.gz" || true
-chmod 755 ${KREW}
-./${KREW} install krew
+    koolbox_verbose downloading ${download_file}
+    mkdir -p ${KREW_ROOT}
+    cd ${KREW_ROOT}
+    curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${download_file}.tar.gz" || true
 
-if ${KOOLBOX_INSTALL_AS_ROOT}; then
-    export KREW_ROOT=/var/opt/krew
-    $KOOLBOX_SUDO_CMD ./"${KREW}" install krew
-else
-    export KREW_ROOT=~/.local/krew
-    ./"${KREW}" install krew
-fi
+    koolbox_verbose extracting ${download_file}
+    # tar gives errors, because it has some MacOS specific values
+    tar zxf "${download_file}.tar.gz" 2>/dev/null || true
 
-# install completions
-#if ${KOOLBOX_INSTALL_AS_ROOT}; then
-#    #$KOOLBOX_INSTALL_BIN_DIR/kubectl completion bash | $KOOLBOX_SUDO_CMD tee /etc/bash_completion.d/kubectl > /dev/null
-#    $KOOLBOX_SUDO_CMD ./"${KREW}" install krew
-#else
-#    ./"${KREW}" install krew
-#fi
+    koolbox_verbose installing ${download_file} into ${package_file}
+    chmod 755 ${download_file}
+    touch ${download_file}
+    mkdir -p bin
+    mv ${download_file} bin/kubectl-krew
+
+    koolbox_verbose cleaning up remaining files
+    rm .??* ${download_file}.tar.gz
+}
+
+main_install "${@}"
