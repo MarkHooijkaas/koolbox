@@ -12,7 +12,7 @@ if [[ $(id -u) == 0 ]] ;then
     : ${KOOLBOX_INSTALL_CONFIG_DIR:=/etc/koolbox}
     : ${KOOLBOX_INSTALL_OPT_DIR:=/opt}
     : ${KOOLBOX_INSTALL_BIN_DIR:=/usr/local/bin}
-    : ${KOOLBOX_INSTALL_BASH_COMPLETE_DIR:=/etc/bash_completions.d}
+    : ${KOOLBOX_INSTALL_BASH_COMPLETE_DIR:=/etc/bash_completion.d}
     : ${KOOLBOX_INSTALL_PROFILE_FILE:=/etc/profile}
 else
     : ${KOOLBOX_INSTALL_CONFIG_DIR:=${XDG_CONFIG_HOME}/koolbox}
