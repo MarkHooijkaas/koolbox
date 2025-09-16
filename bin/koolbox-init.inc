@@ -53,6 +53,7 @@ function koolbox_parse_options() {
             -q|--quiet)   KOOLBOX_VERBOSE=false; KOOLBOX_INFO=false;;
             -f|--force)   KOOLBOX_INSTALL_FORCE=true;;
             -F|--force-all)  KOOLBOX_INSTALL_FORCE_DOWNLOAD=true; KOOLBOX_INSTALL_FORCE=true;;
+            -V|--version)  KOOLBOX_TOOL_VERSION=$2; shift;;
             -x)           set -x;;
             *)  # Default case: No more options, so break out of the loop.
                 echo Unknown option $1
@@ -73,6 +74,7 @@ Options can be:
     -q|--quiet    don't show any information
     -f|--force    force re-install (but not re download)
     -F|--force-all force re-download and re-install
+    -V|--version  install a specific version
     -x            bash set -x for further debugging
 EOF
 }
@@ -81,36 +83,36 @@ EOF
 
 function main_install() {
     koolbox_parse_options "${@}"
-    if [[ $(type -t init_install_${package_name}) == function ]]; then
-        init_install_${package_name}
+    if [[ $(type -t init_install_${tool_name}) == function ]]; then
+        init_install_${tool_name}
     fi
 
     if already_downloaded; then
-        koolbox_info ${package_name} already dowloaded
+        koolbox_info ${tool_name} already dowloaded
         if ${KOOLBOX_INSTALL_FORCE_DOWNLOAD:-false}; then
-            koolbox_info force downloading package anyway
-            download_${package_name}
+            koolbox_info force downloading ${download_result_path} anyway
+            download_${tool_name}
         fi
     else
-        koolbox_info downloading ${package_name}
-        download_${package_name}
+        koolbox_info downloading ${download_result_path}
+        download_${tool_name}
     fi
 
     if already_installed; then
-        koolbox_info ${package_name} already installed
+        koolbox_info ${tool_name} already installed
         if ${KOOLBOX_INSTALL_FORCE:-false}; then
-            koolbox_info force installing package anyway
-            install_${package_name}
+            koolbox_info force installing ${install_result_path} anyway
+            install_${tool_name}
         fi
     else
-        koolbox_info installing ${package_name}
-        install_${package_name}
+        koolbox_info installing ${tool_name}
+        install_${tool_name}
     fi
 
     if ${KOOLBOX_INSTALL_COMPLETIONS:-true}; then
-        if [[ $(type -t install_${package_name}_completions) == function ]]; then
-            koolbox_info installing bash completions for ${package_name}
-            install_${package_name}_completions
+        if [[ $(type -t install_${tool_name}_completions) == function ]]; then
+            koolbox_info installing bash completions for ${tool_name}
+            install_${tool_name}_completions
         fi
     fi
 }
@@ -137,7 +139,7 @@ function install_with_link() {
             koolbox_verbose force linking  ${install_result_path} to ${download_result_path}
             ln -sf ${download_result_path} ${install_result_path}
         else
-            koolbox_info already a version of ${package_name} installed ${install_result_path}
+            koolbox_info already a version of ${tool_name} installed ${install_result_path}
             if $KOOLBOX_VERBOSE; then
                 ls -l ${install_result_path}
             fi

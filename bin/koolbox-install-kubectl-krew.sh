@@ -5,7 +5,7 @@ source $(dirname "${BASH_SOURCE[0]}")/koolbox-init.inc
 
 export KREW_ROOT=${KOOLBOX_INSTALL_OPT_DIR}/krew
 
-package_name=krew
+tool_name=krew
 download_result_path=${KREW_ROOT}/bin/kubectl-krew
 install_result_path=${KREW_ROOT}/bin/kubectl-krew
 

@@ -5,11 +5,12 @@ source $(dirname "${BASH_SOURCE[0]}")/koolbox-init.inc
 koolbox_parse_options "${@}"
 
 
-package_name=kubectl
+tool_name=kubectl
 install_result_path=$KOOLBOX_INSTALL_BIN_DIR/kubectl
 
 function init_install_kubectl() {
-    if [[ -z ${KOOLBOX_INSTALL_KUBECTL_VERSION:-} ]]; then
+    : ${KOOLBOX_INSTALL_KUBECTL_VERSION:=${KOOLBOX_TOOL_VERSION:-}}
+    if [[ -z ${KOOLBOX_INSTALL_KUBECTL_VERSION} ]]; then
         KOOLBOX_INSTALL_KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
     fi
     download_result_path=$KOOLBOX_INSTALL_OPT_DIR/kubectl/$KOOLBOX_INSTALL_KUBECTL_VERSION/bin/kubectl
