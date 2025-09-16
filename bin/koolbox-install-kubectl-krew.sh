@@ -6,9 +6,10 @@ source $(dirname "${BASH_SOURCE[0]}")/koolbox-init.inc
 export KREW_ROOT=${KOOLBOX_INSTALL_OPT_DIR}/krew
 
 package_name=krew
-package_file=${KREW_ROOT}/bin/kubectl-krew
+download_result_path=${KREW_ROOT}/bin/kubectl-krew
+install_result_path=${KREW_ROOT}/bin/kubectl-krew
 
-function install_krew() {
+function download_krew() {
     local os="$(uname | tr '[:upper:]' '[:lower:]')"
     local arch="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')"
     local download_file="krew-${os}_${arch}"
@@ -22,14 +23,16 @@ function install_krew() {
     # tar gives errors, because it has some MacOS specific values
     tar zxf "${download_file}.tar.gz" 2>/dev/null || true
 
-    koolbox_verbose installing ${download_file} into ${package_file}
+    koolbox_verbose installing ${download_file} into ${download_result_path}
     chmod 755 ${download_file}
     touch ${download_file}
     mkdir -p bin
     mv ${download_file} bin/kubectl-krew
+}
 
+function install_krew() {
     koolbox_verbose cleaning up remaining files
-    rm .??* ${download_file}.tar.gz
+    rm -f ${KREW_ROOT}/.??* ${KREW_ROOT}/*.tar.gz
 }
 
 main_install "${@}"
