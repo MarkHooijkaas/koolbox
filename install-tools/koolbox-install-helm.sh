@@ -13,13 +13,19 @@ function init_install_helm() {
         echo helm version not specified using -V option or KOOLBOX_INSTALL_HELM_VERSION var
         exit 1
     fi
-    helm_dir=$KOOLBOX_INSTALL_OPT_DIR/helm/${KOOLBOX_INSTALL_HELM_VERSION}
-    download_result_path=$helm_dir/linux-amd64/helm
+    tool_version=${KOOLBOX_INSTALL_HELM_VERSION}
+    download_filename=helm-${tool_version}-${OS}-${ARCH}.tar.gz
+    download_url=https://get.helm.sh/${download_filename}
+    init_download_dir
+    download_result_path=${download_dir}/${tool_name}
 }
 
 function download_helm() {
-    mkdir -p ${helm_dir}/bin/
-    wget -qO- "https://get.helm.sh/helm-${KOOLBOX_INSTALL_HELM_VERSION}-linux-amd64.tar.gz" | tar xvz -C $helm_dir
+    dry-run curl --silent -O $download_url
+    dry-run tar xfz  $download_filename
+    dry-run rm $download_filename
+    dry-run mv ${OS}-${ARCH}/* .
+    dry-run rmdir ${OS}-${ARCH}
 }
 
 function install_helm() {
@@ -27,7 +33,7 @@ function install_helm() {
 }
 
 function install_helm_completions() {
-    ${download_result_path} completion bash >${KOOLBOX_INSTALL_BASH_COMPLETE_DIR}/helm
+    dry-run ${download_result_path} completion bash >${KOOLBOX_INSTALL_BASH_COMPLETE_DIR}/helm
 }
 
 main_install "${@}"
