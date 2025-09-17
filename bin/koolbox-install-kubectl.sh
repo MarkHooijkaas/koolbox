@@ -13,14 +13,16 @@ function init_install_kubectl() {
     if [[ -z ${KOOLBOX_INSTALL_KUBECTL_VERSION} ]]; then
         KOOLBOX_INSTALL_KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
     fi
-    download_result_path=$KOOLBOX_INSTALL_OPT_DIR/kubectl/$KOOLBOX_INSTALL_KUBECTL_VERSION/bin/kubectl
+    tool_version=${KOOLBOX_INSTALL_KUBECTL_VERSION}
+    download_filename=vault_${tool_version}_${OS_ARCH}.zip
+    download_url="https://dl.k8s.io/release/${KOOLBOX_INSTALL_KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+    init_download_dir
+    download_result_path=${download_dir}/kubectl
 }
 
 function download_kubectl() {
-    koolbox_info downloading ${download_result_path}
-    mkdir -p $KOOLBOX_INSTALL_OPT_DIR/kubectl/$KOOLBOX_INSTALL_KUBECTL_VERSION/bin/
-    curl -L -o ${download_result_path}  "https://dl.k8s.io/release/${KOOLBOX_INSTALL_KUBECTL_VERSION}/bin/linux/amd64/kubectl"
-    chmod 755 ${download_result_path}
+    dry-run curl -L -o ${download_result_path} "https://dl.k8s.io/release/${KOOLBOX_INSTALL_KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+    dry-run chmod 755 ${download_result_path}
 }
 
 function install_kubectl() {
@@ -28,10 +30,7 @@ function install_kubectl() {
 }
 
 function install_kubectl_completions() {
-    ${download_result_path} completion bash >${KOOLBOX_INSTALL_BASH_COMPLETE_DIR}/koolbox-kubectl
+    dry-run ${download_result_path} completion bash >${KOOLBOX_INSTALL_BASH_COMPLETE_DIR}/koolbox-kubectl
 }
-
-
-
 
 main_install "${@}"

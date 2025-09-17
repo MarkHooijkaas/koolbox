@@ -46,8 +46,18 @@ function koolbox_info() {
 }
 
 #####################################################################
+function dry-run() {
+    if $KOOLBOX_DRY_RUN; then
+        printf "   "; echo "${@}"
+    else
+        cmd=$1
+        shift
+        $cmd "${@}"
+    fi
+}
 
 function koolbox_parse_options() {
+    KOOLBOX_DRY_RUN=false
     while [ ! $# -eq 0 ]; do
         case $1 in
             -h|--help)    koolbox_help; exit 0;;
@@ -56,6 +66,7 @@ function koolbox_parse_options() {
             -f|--force)   KOOLBOX_INSTALL_FORCE=true;;
             -F|--force-all)  KOOLBOX_INSTALL_FORCE_DOWNLOAD=true; KOOLBOX_INSTALL_FORCE=true;;
             -V|--version)  KOOLBOX_TOOL_VERSION=$2; shift;;
+            -d|--dry-run) KOOLBOX_DRY_RUN=true;;
             -x)           set -x;;
             *)  # Default case: No more options, so break out of the loop.
                 echo Unknown option $1
@@ -77,6 +88,7 @@ Options can be:
     -f|--force    force re-install (but not re download)
     -F|--force-all force re-download and re-install
     -V|--version  install a specific version
+    -d|--dry-run  dry-run, do not make changes (not yet supported for all tools)
     -x            bash set -x for further debugging
 EOF
 }
@@ -149,7 +161,7 @@ function install_with_link() {
     if [[ -f ${install_result_path} ]]; then
         if ${KOOLBOX_INSTALL_FORCE:-false}; then
             koolbox_verbose force linking  ${install_result_path} to ${download_result_path}
-            ln -sf ${download_result_path} ${install_result_path}
+            dry-run ln -sf ${download_result_path} ${install_result_path}
         else
             koolbox_info already a version of ${tool_name} installed ${install_result_path}
             if $KOOLBOX_VERBOSE; then
@@ -158,7 +170,7 @@ function install_with_link() {
         fi
     else
         koolbox_verbose linking  ${install_result_path} to ${download_result_path}
-        ln -s ${download_result_path} ${install_result_path}
+        dry-run ln -s ${download_result_path} ${install_result_path}
     fi
 }
 

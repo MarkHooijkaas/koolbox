@@ -26,11 +26,11 @@ function init_install_vault() {
 
 function download_vault() {
     koolbox_verbose downloading ${download_filename}
-    curl -fsSLO ${download_url} || true
+    dry-run curl -fsSLO ${download_url} || true
 
     koolbox_verbose extracting ${download_filename}
-    unzip "${download_filename}"
-    rm "${download_filename}"
+    dry-run unzip "${download_filename}"
+    dry-run rm "${download_filename}"
 }
 
 function install_vault() {
