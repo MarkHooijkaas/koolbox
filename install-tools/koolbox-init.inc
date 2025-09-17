@@ -159,7 +159,7 @@ function already_installed() {
 }
 
 function install_with_link() {
-    if [[ -f ${install_result_path} ]]; then
+    if [[ -L ${install_result_path} ]]; then
         if ${KOOLBOX_INSTALL_FORCE:-false}; then
             koolbox_verbose force linking  ${install_result_path} to ${download_result_path}
             dry-run ln -sf ${download_result_path} ${install_result_path}
@@ -169,6 +169,9 @@ function install_with_link() {
                 ls -l ${install_result_path}
             fi
         fi
+    elif [[ -f ${install_result_path} ]]; then
+        koolbox_info already a file installed at ${install_result_path}
+        koolbox_info please remove this before continuing
     else
         koolbox_verbose linking  ${install_result_path} to ${download_result_path}
         dry-run ln -s ${download_result_path} ${install_result_path}
