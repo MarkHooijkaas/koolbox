@@ -82,6 +82,11 @@ EOF
 }
 
 #####################################################################
+function init_download_dir() {
+    download_dir=${KOOLBOX_INSTALL_OPT_DIR}/${tool_name}/${tool_version:-latest}
+    mkdir -p ${download_dir}
+    cd ${download_dir}
+}
 
 function main_install() {
     koolbox_parse_options "${@}"
