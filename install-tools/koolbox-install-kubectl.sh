@@ -15,13 +15,13 @@ function init_install_kubectl() {
     fi
     tool_version=${KOOLBOX_INSTALL_KUBECTL_VERSION}
     download_filename=vault_${tool_version}_${OS_ARCH}.zip
-    download_url="https://dl.k8s.io/release/${KOOLBOX_INSTALL_KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+    download_url="https://dl.k8s.io/release/${KOOLBOX_INSTALL_KUBECTL_VERSION}/bin/${OS}/${ARCH}/kubectl"
     init_download_dir
     download_result_path=${download_dir}/kubectl
 }
 
 function download_kubectl() {
-    dry-run curl -L -o ${download_result_path} "https://dl.k8s.io/release/${KOOLBOX_INSTALL_KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+    dry-run curl -L -o ${download_result_path} "https://dl.k8s.io/release/${KOOLBOX_INSTALL_KUBECTL_VERSION}/bin/${OS}/${ARCH}/kubectl"
     dry-run chmod 755 ${download_result_path}
 }
 

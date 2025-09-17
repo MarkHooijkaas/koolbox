@@ -104,9 +104,9 @@ function main_install() {
     source ${KOOLBOX_ROOT_DIR}/install-tools/koolbox-tool-versions.inc
     koolbox_parse_options "${@}"
 
-    local os="$(uname | tr '[:upper:]' '[:lower:]')"
-    local arch="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')"
-    OS_ARCH=${os}_${arch}
+    OS="$(uname | tr '[:upper:]' '[:lower:]')"
+    ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')"
+    OS_ARCH=${OS}_${ARCH}
 
     if [[ $(type -t init_install_${tool_name}) == function ]]; then
         init_install_${tool_name}
