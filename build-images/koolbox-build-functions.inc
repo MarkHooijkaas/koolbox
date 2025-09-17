@@ -1,6 +1,6 @@
 set -eu
 
-source $(dirname ${BASH_SOURCE[0]})/versions.inc
+source $(dirname ${BASH_SOURCE[0]})/koolbox-version.inc
 
 : ${KOOLBOX_BUILD_OPTIONS:=""}
 
@@ -84,7 +84,7 @@ EOF
 
 function koolbox_copy_install_scripts() {
     if ${KOOLBOX_BUILD_COPY_ALL_SCRIPTS:-false}; then
-        echo "COPY bin /opt/koolbox/bin/"
+        echo "COPY install-tools /opt/koolbox/bin/"
     fi
 }
 
