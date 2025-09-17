@@ -101,6 +101,7 @@ function init_download_dir() {
 }
 
 function main_install() {
+    source ${KOOLBOX_ROOT_DIR}/install-tools/tool-versions.inc
     koolbox_parse_options "${@}"
 
     local os="$(uname | tr '[:upper:]' '[:lower:]')"
