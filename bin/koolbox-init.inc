@@ -85,6 +85,11 @@ EOF
 
 function main_install() {
     koolbox_parse_options "${@}"
+
+    local os="$(uname | tr '[:upper:]' '[:lower:]')"
+    local arch="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')"
+    OS_ARCH=${os}_${arch}
+
     if [[ $(type -t init_install_${tool_name}) == function ]]; then
         init_install_${tool_name}
     fi
