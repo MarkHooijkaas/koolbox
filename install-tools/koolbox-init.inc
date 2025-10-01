@@ -68,6 +68,7 @@ function koolbox_parse_options() {
             -F|--force-all)  KOOLBOX_INSTALL_FORCE_DOWNLOAD=true; KOOLBOX_INSTALL_FORCE=true;;
             -V|--version)  KOOLBOX_TOOL_VERSION=$2; shift;;
             -d|--dry-run) KOOLBOX_DRY_RUN=true;;
+            -N|--no-cleanup) KOOLBOX_INSTALL_CLEANUP=false;;
             -x)           set -x;;
             *)  # Default case: No more options, so break out of the loop.
                 echo Unknown option $1
@@ -90,6 +91,7 @@ Options can be:
     -F|--force-all force re-download and re-install
     -V|--version  install a specific version
     -d|--dry-run  dry-run, do not make changes (not yet supported for all tools)
+    -n|--no-clean no clean of temporary (downloaded and other) files
     -x            bash set -x for further debugging
 EOF
 }
@@ -122,8 +124,10 @@ function run_install() {
     run_steps "${@}"
 
     if ${KOOLBOX_INSTALL_CLEANUP:-true}; then
-        koolbox_info cleanup ${tool_name}
+        koolbox_info cleanup install files for ${tool_name}
         $cleanup_func
+    else
+        koolbox_info skipping cleanup install files for ${tool_name}
     fi
 }
 
