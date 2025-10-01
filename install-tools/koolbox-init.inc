@@ -52,6 +52,7 @@ function dry-run() {
     else
         cmd=$1
         shift
+        koolbox_verbose : $cmd "${@}"
         $cmd "${@}"
     fi
 }
@@ -96,11 +97,56 @@ EOF
 #####################################################################
 function init_download_dir() {
     download_dir=${KOOLBOX_INSTALL_OPT_DIR}/${tool_name}/${tool_version:-latest}
-    mkdir -p ${download_dir}
-    cd ${download_dir}
+    dry-run mkdir -p ${download_dir}
+    dry-run cd ${download_dir}
+}
+
+
+function run_install() {
+    init_func=init_install_${tool_name}
+    download_func=download_tool
+    install_func=install_tool
+    cleanup_func=cleanup_tool
+    source ${KOOLBOX_ROOT_DIR}/install-tools/koolbox-tool-versions.inc
+    koolbox_parse_options "${@}"
+
+    # see https://stackoverflow.com/questions/16553089/dynamic-variable-names-in-bash
+    version_varname=KOOLBOX_INSTALL_${tool_name^^}_VERSION
+    if [[ ! -z ${KOOLBOX_TOOL_VERSION:-} ]]; then
+        eval $version_varname=$KOOLBOX_TOOL_VERSION
+    fi
+    tool_version="${!version_varname}"
+    init_download_dir
+
+    install_result_path=$KOOLBOX_INSTALL_BIN_DIR/${tool_name}
+    run_steps "${@}"
+
+    if ${KOOLBOX_INSTALL_CLEANUP:-true}; then
+        koolbox_info cleanup ${tool_name}
+        $cleanup_func
+    fi
 }
 
 function main_install() {
+    init_func=init_install_${tool_name}
+    download_func=download_${tool_name}
+    install_func=install_${tool_name}
+    cleanup_func=cleanup_${tool_name}
+    run_steps "${@}"
+}
+
+function download_tool() {
+    dry-run curl -L -O ${download_url}
+    dry-run tar xfz ${download_filename}
+}
+function install_tool() {
+    install_with_link
+}
+function cleanup_tool() {
+    dry-run rm $download_filename
+}
+
+function run_steps() {
     source ${KOOLBOX_ROOT_DIR}/install-tools/koolbox-tool-versions.inc
     koolbox_parse_options "${@}"
 
@@ -108,30 +154,28 @@ function main_install() {
     ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')"
     OS_ARCH=${OS}_${ARCH}
 
-    if [[ $(type -t init_install_${tool_name}) == function ]]; then
-        init_install_${tool_name}
-    fi
+    $init_func
 
     if already_downloaded; then
         koolbox_info ${tool_name} already dowloaded
         if ${KOOLBOX_INSTALL_FORCE_DOWNLOAD:-false}; then
             koolbox_info force downloading ${download_result_path} anyway
-            download_${tool_name}
+            $download_func
         fi
     else
         koolbox_info downloading ${download_result_path}
-        download_${tool_name}
+        $download_func
     fi
 
     if already_installed; then
         koolbox_info ${tool_name} already installed
         if ${KOOLBOX_INSTALL_FORCE:-false}; then
             koolbox_info force installing ${install_result_path} anyway
-            install_${tool_name}
+            $install_func
         fi
     else
         koolbox_info installing ${tool_name}
-        install_${tool_name}
+        $install_func
     fi
 
     if ${KOOLBOX_INSTALL_COMPLETIONS:-true}; then
