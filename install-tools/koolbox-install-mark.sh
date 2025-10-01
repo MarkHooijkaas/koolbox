@@ -23,8 +23,6 @@ function init_install_mark() {
 function download_mark() {
     dry-run curl -L -O ${download_url}
     dry-run tar xfz ${download_filename}
-    dirname=gh_${tool_version}_${OS_ARCH}
-
     dry-run rm $download_filename
 }
 
@@ -37,6 +35,3 @@ function install_mark() {
 #}
 
 main_install "${@}"
-
-https://github.com/kovetskiy/mark/releases/download/v15.0.0/mark_Linux_x86_64.tar.gz -o t
-https://github.com/kovetskiy/mark/releases/download/v15.0.0/mark_Linux_x86-64.tar.gz
