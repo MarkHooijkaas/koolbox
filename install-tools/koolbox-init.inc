@@ -102,30 +102,31 @@ EOF
 
 #####################################################################
 init_dirs() {
-    cache_dir=${KOOLBOX_INSTALL_CACHE_DIR}/${tool_name}/${tool_version:-latest}
-    download_dir=${KOOLBOX_INSTALL_OPT_DIR}/${tool_name}/${tool_version:-latest}
-    opt_dir=${KOOLBOX_INSTALL_OPT_DIR}/${tool_name}/${tool_version:-latest}
+    local cache_dir=${KOOLBOX_INSTALL_CACHE_DIR}/${tool_name}/${tool_version:-latest}
+    #local download_dir=${KOOLBOX_INSTALL_OPT_DIR}/${tool_name}/${tool_version:-latest}
+    extract_dir=${KOOLBOX_INSTALL_OPT_DIR}/${tool_name}/${tool_version:-latest}
+    bin_dir=${KOOLBOX_INSTALL_BIN_DIR}
     dry-run mkdir -p ${cache_dir}
-    dry-run mkdir -p ${opt_dir}
+    dry-run mkdir -p ${extract_dir}
+    dry-run mkdir -p ${bin_dir}
+
+    download_path=${cache_dir}/${download_filename}
+    extract_path=${extract_dir}/${tool_name}
+    install_path=${KOOLBOX_INSTALL_BIN_DIR}/${bin_name:-$tool_name}
+    completion_path=${KOOLBOX_INSTALL_BASH_COMPLETE_DIR}/koolbox-${tool_name}
 }
 
-
 run_all() {
-    init_func=init_install
-    download_func=download_file
-    install_func=install_links
-    cleanup_func=cleanup_files
-    install_result_path=$KOOLBOX_INSTALL_BIN_DIR/${tool_name}
-
     source ${KOOLBOX_ROOT_DIR}/install-tools/koolbox-tool-versions.inc
     koolbox_parse_options "${@}"
-
     calc_tool_version
     init_vars
+    #install_path=$KOOLBOX_INSTALL_BIN_DIR/${tool_name}
+
     init_dirs
-    download_result_path=${cache_dir}/${download_filename}
+    #download_path=${cache_dir}/${download_filename}
     run_download_file
-    run_install_links
+    run_install
     run_install_extras
     run_cleanup_files
 }
@@ -147,58 +148,51 @@ calc_transformed_os_arch() {
 }
 
 download_file() {
-    dry-run curl -L -o ${download_result_path} ${download_url}
-    dry-run cd ${opt_dir}
+    dry-run curl -L -o ${download_path} ${download_url}
+}
+
+extract_downloaded_file() {
+    #dry-run cd ${extract_dir}
     if ${skip_tar_topdir:-false}; then
-        dry-run tar xfz ${download_result_path} --strip-components=1
-    else
-        dry-run tar xfz ${download_result_path}
+        local options="--strip-components=1"
     fi
+    dry-run tar xfz ${download_path} ${options:-} --directory ${extract_dir}
 }
 install_links() {
     install_with_link
 }
 cleanup_files() {
-    dry-run rm ${download_result_path}
+    dry-run rm ${download_path}
 }
 
-main_install() {
-    init_func=init_install_${tool_name}
-    download_func=download_${tool_name}
-    install_func=install_${tool_name}
-    cleanup_func=cleanup_${tool_name}
-    source ${KOOLBOX_ROOT_DIR}/install-tools/koolbox-tool-versions.inc
-    koolbox_parse_options "${@}"
-    $init_func
-    run_download_file
-    run_install_links
-    run_install_extras
-    #run_cleanup_files
-}
 
 run_download_file() {
-    if already_downloaded; then
-        koolbox_verbose ${tool_name} already dowloaded in ${download_result_path}
+    if [[  -f ${download_path} ]]; then
+        koolbox_verbose ${tool_name} already downloaded in ${download_path}
         if ${KOOLBOX_INSTALL_FORCE_DOWNLOAD:-false}; then
-            koolbox_verbose force downloading ${download_result_path} anyway
-            $download_func
+            koolbox_verbose force downloading ${download_path} anyway
+            download_file
         fi
     else
-        koolbox_verbose downloading ${download_result_path}
-        $download_func
+        koolbox_verbose downloading ${download_path}
+        download_file
     fi
 }
 
-run_install_links() {
-    if already_installed; then
+
+run_install() {
+    if [[ -f ${install_path} ]]; then
         koolbox_verbose ${tool_name} already installed
         if ${KOOLBOX_INSTALL_FORCE:-false}; then
-            koolbox_verbose force installing ${install_result_path} anyway
-            $install_func
+            koolbox_verbose force extracting ${download_path} to ${extract_path}
+            extract_downloaded_file
+            install_links
         fi
     else
+        koolbox_verbose extracting ${download_path} to ${extract_path}
+        extract_downloaded_file
         koolbox_verbose installing ${tool_name}
-        $install_func
+        install_links
     fi
 }
 
@@ -220,39 +214,23 @@ run_cleanup_files() {
     fi
 }
 
-already_downloaded() {
-    if [[ -f ${download_result_path} ]]; then
-        return 0
-    else
-        return 1
-    fi
-}
-
-already_installed() {
-    if [[ -f ${install_result_path} ]]; then
-        return 0
-    else
-        return 1
-    fi
-}
-
 install_with_link() {
-    if [[ -L ${install_result_path} ]]; then
+    if [[ -L ${install_path} ]]; then
         if ${KOOLBOX_INSTALL_FORCE:-false}; then
-            koolbox_verbose force linking  ${install_result_path} to ${download_result_path}
-            dry-run ln -sf ${download_result_path} ${install_result_path}
+            koolbox_verbose force linking  ${install_path} to ${extract_path}
+            dry-run ln -sf ${extract_path} ${install_path}
         else
-            koolbox_info already a version of ${tool_name} installed ${install_result_path}
+            koolbox_info already a version of ${tool_name} installed ${install_path}
             if $KOOLBOX_VERBOSE; then
-                ls -l ${install_result_path}
+                ls -l ${install_path}
             fi
         fi
-    elif [[ -f ${install_result_path} ]]; then
-        koolbox_info already a file installed at ${install_result_path}
+    elif [[ -f ${install_path} ]]; then
+        koolbox_info already a file installed at ${install_path}
         koolbox_info please remove this before continuing
     else
-        koolbox_verbose linking  ${install_result_path} to ${download_result_path}
-        dry-run ln -s ${download_result_path} ${install_result_path}
+        koolbox_verbose linking  ${install_path} to ${extract_path}
+        dry-run ln -s ${extract_path} ${install_path}
     fi
 }
 
@@ -275,11 +253,4 @@ append_to_file() {
         koolbox_info creating new $file with command: $cmd
         echo $cmd >>$file
     fi
-}
-
-
-#############################################
-# Old deprecated
-init_download_dir() {
-    init_dirs
 }
