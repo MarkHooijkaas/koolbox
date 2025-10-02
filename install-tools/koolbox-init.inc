@@ -71,6 +71,7 @@ koolbox_parse_options() {
             -f|--force)   KOOLBOX_INSTALL_FORCE=true;;
             -F|--force-all)  KOOLBOX_INSTALL_FORCE_DOWNLOAD=true; KOOLBOX_INSTALL_FORCE=true;;
             -V|--version)  KOOLBOX_TOOL_VERSION=$2; shift;;
+            -t|--tool)     tool_name=$2; shift;;
             -d|--dry-run) KOOLBOX_DRY_RUN=true;;
             -N|--no-cleanup) KOOLBOX_INSTALL_CLEANUP=false;;
             -x)           set -x;;
@@ -119,6 +120,7 @@ init_dirs() {
 run_all() {
     source ${KOOLBOX_ROOT_DIR}/install-tools/koolbox-tool-versions.inc
     koolbox_parse_options "${@}"
+    source ${KOOLBOX_ROOT_DIR}/kooltools/${tool_name}.def
     calc_tool_version
     init_vars
     #install_path=$KOOLBOX_INSTALL_BIN_DIR/${tool_name}

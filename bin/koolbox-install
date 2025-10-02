@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+KOOLBOX_ROOT_DIR=$(dirname $(dirname $(readlink -f ${BASH_SOURCE[0]})))
+source ${KOOLBOX_ROOT_DIR}/install-tools/koolbox-init.inc
+
+run_all "${@}"
