@@ -103,18 +103,16 @@ EOF
 
 #####################################################################
 init_dirs() {
-    local cache_dir=${KOOLBOX_INSTALL_CACHE_DIR}/${tool_name}/${tool_version:-latest}
-    #local download_dir=${KOOLBOX_INSTALL_OPT_DIR}/${tool_name}/${tool_version:-latest}
+    cache_dir=${KOOLBOX_INSTALL_CACHE_DIR}/${tool_name}/${tool_version:-latest}
     extract_dir=${KOOLBOX_INSTALL_OPT_DIR}/${tool_name}/${tool_version:-latest}
     bin_dir=${KOOLBOX_INSTALL_BIN_DIR}
     dry-run mkdir -p ${cache_dir}
     dry-run mkdir -p ${extract_dir}
     dry-run mkdir -p ${bin_dir}
 
-    download_path=${cache_dir}/${download_filename}
-    extract_path=${extract_dir}/${tool_name}
-    install_path=${KOOLBOX_INSTALL_BIN_DIR}/${bin_name:-$tool_name}
-    completion_path=${KOOLBOX_INSTALL_BASH_COMPLETE_DIR}/koolbox-${tool_name}
+    : ${extract_path:=${extract_dir}/${tool_name}}
+    : ${install_path:=${KOOLBOX_INSTALL_BIN_DIR}/${bin_name:-$tool_name}}
+    : ${completion_path:=${KOOLBOX_INSTALL_BASH_COMPLETE_DIR}/koolbox-${tool_name}}
 }
 
 run_all() {
@@ -123,9 +121,9 @@ run_all() {
     source ${KOOLBOX_ROOT_DIR}/kooltools/${tool_name}.def
     calc_tool_version
     init_vars
-    #install_path=$KOOLBOX_INSTALL_BIN_DIR/${tool_name}
-
     init_dirs
+    download_path=${cache_dir}/${download_filename}
+    #install_path=$KOOLBOX_INSTALL_BIN_DIR/${tool_name}
     #download_path=${cache_dir}/${download_filename}
     run_download_file
     run_install
