@@ -1,5 +1,4 @@
 #!/usr/bin/bash
-
 source $(dirname "${BASH_SOURCE[0]}")/koolbox-init.inc
 
 tool_name=mark
