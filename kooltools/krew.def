@@ -6,13 +6,9 @@
 init_vars() {
     KREW_ROOT=${KOOLBOX_INSTALL_OPT_DIR}/krew
 
-    local os="$(uname | tr '[:upper:]' '[:lower:]')"
-    local arch="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')"
-    calc_transformed_os_arch
-
-    download_filename="krew-${os}_${arch}.tar.gz"
+    download_filename="krew-${OS_ARCH}.tar.gz"
     download_url=https://github.com/kubernetes-sigs/krew/releases/latest/download/${download_filename}
-    extract_path=${KREW_ROOT}/latest/krew-${os}_${arch}
+    extract_path=${KREW_ROOT}/latest
 }
 
 extract_downloaded_file() {
@@ -25,7 +21,7 @@ install_links() {
     append_to_file ${KOOLBOX_INSTALL_PROFILE_FILE} "PATH=\$PATH:$KREW_ROOT/bin"
     source ${KOOLBOX_INSTALL_PROFILE_FILE}
 
-    dry-run ${extract_path} install krew
+    dry-run ${extract_path}/krew-${OS_ARCH} install krew
     dry-run rm -rf ${KREW_ROOT}/latest
 
 }

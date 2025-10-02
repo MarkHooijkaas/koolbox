@@ -1,7 +1,6 @@
 init_vars() {
     # note: the url dir version has a v, but the file version does not
     # https://github.com/cli/cli/releases/download/v2.79.0/gh_2.79.0_linux_amd64.tar.gz
-    calc_transformed_os_arch
     download_filename=gh_${tool_version}_${OS_ARCH}.tar.gz
     download_url=https://github.com/cli/cli/releases/download/v${tool_version}/${download_filename}
 }

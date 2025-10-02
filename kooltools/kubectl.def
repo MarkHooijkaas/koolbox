@@ -1,5 +1,4 @@
 init_vars() {
-    calc_transformed_os_arch
     download_filename=kubectl
     download_url=https://dl.k8s.io/release/${tool_version}/bin/${OS}/${ARCH}/kubectl
 }
