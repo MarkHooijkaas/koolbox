@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+: ${KOOLBOX_INSTALL_KREW_VERSION:=latest}  # no way to install specific version
+
+
+init_vars() {
+    KREW_ROOT=${KOOLBOX_INSTALL_OPT_DIR}/krew
+
+    local os="$(uname | tr '[:upper:]' '[:lower:]')"
+    local arch="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')"
+    calc_transformed_os_arch
+
+    download_filename="krew-${os}_${arch}.tar.gz"
+    download_url=https://github.com/kubernetes-sigs/krew/releases/latest/download/${download_filename}
+    extract_path=${KREW_ROOT}/latest/krew-${os}_${arch}
+}
+
+extract_downloaded_file() {
+    # tar gives errors, because it has some MacOS specific values
+    dry-run tar xfz "${download_path}" --directory ${extract_dir} 2>/dev/null || true
+}
+
+install_links() {
+    append_to_file ${KOOLBOX_INSTALL_PROFILE_FILE} "export KREW_ROOT=$KREW_ROOT"
+    append_to_file ${KOOLBOX_INSTALL_PROFILE_FILE} "PATH=\$PATH:$KREW_ROOT/bin"
+    source ${KOOLBOX_INSTALL_PROFILE_FILE}
+
+    dry-run ${extract_path} install krew
+    dry-run rm -rf ${KREW_ROOT}/latest
+
+}

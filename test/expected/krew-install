@@ -1,0 +1,12 @@
+   mkdir -p /home/mark/.cache/koolbox/krew/latest
+   mkdir -p /home/mark/opt/krew/latest
+   mkdir -p /home/mark/.local/bin
+krew already downloaded in /home/mark/.cache/koolbox/krew/latest/krew-linux_amd64.tar.gz
+extracting /home/mark/.cache/koolbox/krew/latest/krew-linux_amd64.tar.gz to /home/mark/opt/krew/latest/krew-linux_amd64
+   tar xfz /home/mark/.cache/koolbox/krew/latest/krew-linux_amd64.tar.gz --directory /home/mark/opt/krew/latest
+installing krew
+/home/mark/.profile already includes export KREW_ROOT=/home/mark/opt/krew
+/home/mark/.profile already includes PATH=$PATH:/home/mark/opt/krew/bin
+   /home/mark/opt/krew/latest/krew-linux_amd64 install krew
+   rm -rf /home/mark/opt/krew/latest
+skipping cleanup install files for krew
