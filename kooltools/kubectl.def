@@ -1,7 +1,7 @@
 init_vars() {
     calc_transformed_os_arch
     download_filename=kubectl
-    download_url="https://dl.k8s.io/release/${KOOLBOX_INSTALL_KUBECTL_VERSION}/bin/${OS}/${ARCH}/kubectl"
+    download_url=https://dl.k8s.io/release/${tool_version}/bin/${OS}/${ARCH}/kubectl
 }
 
 extract_downloaded_file() {
