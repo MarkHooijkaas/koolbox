@@ -1,0 +1,12 @@
+   mkdir -p /home/mark/.cache/koolbox/gh/2.79.0
+   mkdir -p /home/mark/opt/gh/2.79.0
+   mkdir -p /home/mark/.local/bin
+gh already downloaded in /home/mark/.cache/koolbox/gh/2.79.0/gh_2.79.0_linux_amd64.tar.gz
+force downloading /home/mark/.cache/koolbox/gh/2.79.0/gh_2.79.0_linux_amd64.tar.gz anyway
+   curl -L -o /home/mark/.cache/koolbox/gh/2.79.0/gh_2.79.0_linux_amd64.tar.gz https://github.com/cli/cli/releases/download/v2.79.0/gh_2.79.0_linux_amd64.tar.gz
+extracting /home/mark/.cache/koolbox/gh/2.79.0/gh_2.79.0_linux_amd64.tar.gz to /home/mark/opt/gh/2.79.0/gh
+   tar xfz /home/mark/.cache/koolbox/gh/2.79.0/gh_2.79.0_linux_amd64.tar.gz --directory /home/mark/opt/gh/2.79.0 --strip-components=1
+installing gh
+force linking /home/mark/.local/bin/gh to /home/mark/opt/gh/2.79.0/gh
+   ln -sf /home/mark/opt/gh/2.79.0/gh /home/mark/.local/bin/gh
+skipping cleanup install files for gh

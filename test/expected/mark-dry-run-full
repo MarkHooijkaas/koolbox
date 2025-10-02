@@ -1,0 +1,12 @@
+   mkdir -p /home/mark/.cache/koolbox/mark/15.0.0
+   mkdir -p /home/mark/opt/mark/15.0.0
+   mkdir -p /home/mark/.local/bin
+mark already downloaded in /home/mark/.cache/koolbox/mark/15.0.0/mark_Linux_x86_64.tar.gz
+force downloading /home/mark/.cache/koolbox/mark/15.0.0/mark_Linux_x86_64.tar.gz anyway
+   curl -L -o /home/mark/.cache/koolbox/mark/15.0.0/mark_Linux_x86_64.tar.gz https://github.com/kovetskiy/mark/releases/download/v15.0.0/mark_Linux_x86_64.tar.gz
+mark already installed
+force extracting /home/mark/.cache/koolbox/mark/15.0.0/mark_Linux_x86_64.tar.gz to /home/mark/opt/mark/15.0.0/mark
+   tar xfz /home/mark/.cache/koolbox/mark/15.0.0/mark_Linux_x86_64.tar.gz --directory /home/mark/opt/mark/15.0.0
+force linking /home/mark/.local/bin/mark to /home/mark/opt/mark/15.0.0/mark
+   ln -sf /home/mark/opt/mark/15.0.0/mark /home/mark/.local/bin/mark
+skipping cleanup install files for mark

@@ -1,0 +1,13 @@
+   mkdir -p /home/mark/.cache/koolbox/kubectl/v1.34.1
+   mkdir -p /home/mark/opt/kubectl/v1.34.1
+   mkdir -p /home/mark/.local/bin
+kubectl already downloaded in /home/mark/.cache/koolbox/kubectl/v1.34.1/kubectl
+force downloading /home/mark/.cache/koolbox/kubectl/v1.34.1/kubectl anyway
+   curl -L -o /home/mark/.cache/koolbox/kubectl/v1.34.1/kubectl https://dl.k8s.io/release/v1.34.1/bin/linux/amd64/kubectl
+kubectl already installed
+force extracting /home/mark/.cache/koolbox/kubectl/v1.34.1/kubectl to /home/mark/opt/kubectl/v1.34.1/kubectl
+   cp /home/mark/.cache/koolbox/kubectl/v1.34.1/kubectl /home/mark/opt/kubectl/v1.34.1/kubectl
+   chmod 755 /home/mark/opt/kubectl/v1.34.1/kubectl
+force linking /home/mark/.local/bin/kubectl to /home/mark/opt/kubectl/v1.34.1/kubectl
+   ln -sf /home/mark/opt/kubectl/v1.34.1/kubectl /home/mark/.local/bin/kubectl
+skipping cleanup install files for kubectl
