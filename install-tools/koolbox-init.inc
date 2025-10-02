@@ -55,7 +55,7 @@ dry-run() {
         cmd=$1
         shift
         if ${KOOLBOX_VERBOSE:-true}; then
-            printf "   "; echo "${@}"
+            printf "   "; echo $cmd "${@}"
         fi
         $cmd "${@}"
     fi
@@ -178,26 +178,26 @@ main_install() {
 
 run_download_file() {
     if already_downloaded; then
-        koolbox_info ${tool_name} already dowloaded in ${download_result_path}
+        koolbox_verbose ${tool_name} already dowloaded in ${download_result_path}
         if ${KOOLBOX_INSTALL_FORCE_DOWNLOAD:-false}; then
-            koolbox_info force downloading ${download_result_path} anyway
+            koolbox_verbose force downloading ${download_result_path} anyway
             $download_func
         fi
     else
-        koolbox_info downloading ${download_result_path}
+        koolbox_verbose downloading ${download_result_path}
         $download_func
     fi
 }
 
 run_install_links() {
     if already_installed; then
-        koolbox_info ${tool_name} already installed
+        koolbox_verbose ${tool_name} already installed
         if ${KOOLBOX_INSTALL_FORCE:-false}; then
-            koolbox_info force installing ${install_result_path} anyway
+            koolbox_verbose force installing ${install_result_path} anyway
             $install_func
         fi
     else
-        koolbox_info installing ${tool_name}
+        koolbox_verbose installing ${tool_name}
         $install_func
     fi
 }
@@ -205,7 +205,7 @@ run_install_links() {
 run_install_extras() {
     if ${KOOLBOX_INSTALL_COMPLETIONS:-true}; then
         if [[ $(type -t install_${tool_name}_completions) == function ]]; then
-            koolbox_info installing bash completions for ${tool_name}
+            koolbox_verbose installing bash completions for ${tool_name}
             install_extras
         fi
     fi
@@ -213,10 +213,10 @@ run_install_extras() {
 
 run_cleanup_files() {
     if ${KOOLBOX_INSTALL_CLEANUP:-false}; then
-        koolbox_info cleanup install files for ${tool_name}
+        koolbox_verbose cleanup install files for ${tool_name}
         $cleanup_func
     else
-        koolbox_info skipping cleanup install files for ${tool_name}
+        koolbox_verbose skipping cleanup install files for ${tool_name}
     fi
 }
 
