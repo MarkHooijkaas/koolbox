@@ -104,31 +104,46 @@ init_download_dir() {
 }
 
 
-run_install() {
-    init_func=init_install_${tool_name}
-    download_func=download_tool
-    install_func=install_tool
-    cleanup_func=cleanup_tool
+run_all() {
+    init_func=init_install
+    download_func=download_file
+    install_func=install_links
+    cleanup_func=cleanup_files
+    install_result_path=$KOOLBOX_INSTALL_BIN_DIR/${tool_name}
+
     source ${KOOLBOX_ROOT_DIR}/install-tools/koolbox-tool-versions.inc
     koolbox_parse_options "${@}"
 
+    calc_tool_version
+    init_download_dir
+    init_vars
+    run_download_file
+    run_install_links
+    run_install_extras
+    run_cleanup_files
+}
+
+calc_tool_version() {
     # see https://stackoverflow.com/questions/16553089/dynamic-variable-names-in-bash
     version_varname=KOOLBOX_INSTALL_${tool_name^^}_VERSION
     if [[ ! -z ${KOOLBOX_TOOL_VERSION:-} ]]; then
         eval $version_varname=$KOOLBOX_TOOL_VERSION
     fi
     tool_version="${!version_varname}"
-    init_download_dir
 
-    install_result_path=$KOOLBOX_INSTALL_BIN_DIR/${tool_name}
-    run_steps "${@}"
+}
 
-    if ${KOOLBOX_INSTALL_CLEANUP:-true}; then
-        koolbox_info cleanup install files for ${tool_name}
-        $cleanup_func
-    else
-        koolbox_info skipping cleanup install files for ${tool_name}
-    fi
+
+
+download_file() {
+    dry-run curl -L -O ${download_url}
+    dry-run tar xfz ${download_filename}
+}
+install_links() {
+    install_with_link
+}
+cleanup_files() {
+    dry-run rm $download_filename
 }
 
 main_install() {
@@ -136,21 +151,7 @@ main_install() {
     download_func=download_${tool_name}
     install_func=install_${tool_name}
     cleanup_func=cleanup_${tool_name}
-    run_steps "${@}"
-}
 
-download_tool() {
-    dry-run curl -L -O ${download_url}
-    dry-run tar xfz ${download_filename}
-}
-install_tool() {
-    install_with_link
-}
-cleanup_tool() {
-    dry-run rm $download_filename
-}
-
-run_steps() {
     source ${KOOLBOX_ROOT_DIR}/install-tools/koolbox-tool-versions.inc
     koolbox_parse_options "${@}"
 
@@ -159,7 +160,13 @@ run_steps() {
     OS_ARCH=${OS}_${ARCH}
 
     $init_func
+    run_download_file
+    run_install_links
+    run_install_extras
+    #run_cleanup_files
+}
 
+run_download_file() {
     if already_downloaded; then
         koolbox_info ${tool_name} already dowloaded
         if ${KOOLBOX_INSTALL_FORCE_DOWNLOAD:-false}; then
@@ -170,7 +177,9 @@ run_steps() {
         koolbox_info downloading ${download_result_path}
         $download_func
     fi
+}
 
+run_install_links() {
     if already_installed; then
         koolbox_info ${tool_name} already installed
         if ${KOOLBOX_INSTALL_FORCE:-false}; then
@@ -181,12 +190,23 @@ run_steps() {
         koolbox_info installing ${tool_name}
         $install_func
     fi
+}
 
+run_install_extras() {
     if ${KOOLBOX_INSTALL_COMPLETIONS:-true}; then
-        if [[ $(type -t install_${tool_name}_completions) == ]]; then
+        if [[ $(type -t install_${tool_name}_completions) == function ]]; then
             koolbox_info installing bash completions for ${tool_name}
-            install_${tool_name}_completions
+            install_extras
         fi
+    fi
+}
+
+run_cleanup_files() {
+    if ${KOOLBOX_INSTALL_CLEANUP:-true}; then
+        koolbox_info cleanup install files for ${tool_name}
+        $cleanup_func
+    else
+        koolbox_info skipping cleanup install files for ${tool_name}
     fi
 }
 
