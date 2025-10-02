@@ -155,10 +155,10 @@ download_file() {
 
 extract_downloaded_file() {
     #dry-run cd ${extract_dir}
-    if ${skip_tar_topdir:-false}; then
+    if ${skip_tar_topdir:-true}; then
         local options="--strip-components=1"
     fi
-    dry-run tar xfz ${download_path} ${options:-} --directory ${extract_dir}
+    dry-run tar xfz ${download_path} --directory ${extract_dir} ${options:-}
 }
 install_links() {
     install_with_link
