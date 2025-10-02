@@ -1,0 +1,7 @@
+# see https://developer.hashicorp.com/vault/install for download links
+# see https://developer.hashicorp.com/well-architected-framework/verify-hashicorp-binary for signing
+
+init_vars() {
+    download_filename=vault_${tool_version}_${OS_ARCH}.zip
+    download_url=https://releases.hashicorp.com/vault/${KOOLBOX_INSTALL_VAULT_VERSION}/${download_filename}
+ }
