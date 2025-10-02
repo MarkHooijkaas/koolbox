@@ -12,12 +12,14 @@ if [[ $(id -u) == 0 ]] ;then
     : ${KOOLBOX_INSTALL_CONFIG_DIR:=/etc/koolbox}
     : ${KOOLBOX_INSTALL_OPT_DIR:=/opt}
     : ${KOOLBOX_INSTALL_BIN_DIR:=/usr/local/bin}
+    : ${KOOLBOX_INSTALL_CACHE_DIR:=/var/cache/koolbox}
     : ${KOOLBOX_INSTALL_BASH_COMPLETE_DIR:=/etc/bash_completion.d}
     : ${KOOLBOX_INSTALL_PROFILE_FILE:=/etc/profile}
 else
     : ${KOOLBOX_INSTALL_CONFIG_DIR:=${XDG_CONFIG_HOME}/koolbox}
     : ${KOOLBOX_INSTALL_OPT_DIR:=~/opt}
     : ${KOOLBOX_INSTALL_BIN_DIR:=~/.local/bin}
+    : ${KOOLBOX_INSTALL_CACHE_DIR:=~/.cache/koolbox}
     : ${KOOLBOX_INSTALL_BASH_COMPLETE_DIR:=${XDG_DATA_HOME}/bash-completion/completions}
     : ${KOOLBOX_INSTALL_PROFILE_FILE:=~/.profile}
 fi
@@ -52,7 +54,9 @@ dry-run() {
     else
         cmd=$1
         shift
-        koolbox_verbose : $cmd "${@}"
+        if ${KOOLBOX_VERBOSE:-true}; then
+            printf "   "; echo "${@}"
+        fi
         $cmd "${@}"
     fi
 }
@@ -91,16 +95,18 @@ Options can be:
     -F|--force-all force re-download and re-install
     -V|--version  install a specific version
     -d|--dry-run  dry-run, do not make changes (not yet supported for all tools)
-    -n|--no-clean no clean of temporary (downloaded and other) files
+    -C|--clear    clear cache of temporary (downloaded and other) files
     -x            bash set -x for further debugging
 EOF
 }
 
 #####################################################################
-init_download_dir() {
+init_dirs() {
+    cache_dir=${KOOLBOX_INSTALL_CACHE_DIR}/${tool_name}/${tool_version:-latest}
     download_dir=${KOOLBOX_INSTALL_OPT_DIR}/${tool_name}/${tool_version:-latest}
-    dry-run mkdir -p ${download_dir}
-    dry-run cd ${download_dir}
+    opt_dir=${KOOLBOX_INSTALL_OPT_DIR}/${tool_name}/${tool_version:-latest}
+    dry-run mkdir -p ${cache_dir}
+    dry-run mkdir -p ${opt_dir}
 }
 
 
@@ -115,9 +121,9 @@ run_all() {
     koolbox_parse_options "${@}"
 
     calc_tool_version
-    init_download_dir
-    download_result_path=${download_dir}/${tool_name}
     init_vars
+    init_dirs
+    download_result_path=${cache_dir}/${download_filename}
     run_download_file
     run_install_links
     run_install_extras
@@ -141,18 +147,19 @@ calc_transformed_os_arch() {
 }
 
 download_file() {
-    dry-run curl -L -O ${download_url}
+    dry-run curl -L -o ${download_result_path} ${download_url}
+    dry-run cd ${opt_dir}
     if ${skip_tar_topdir:-false}; then
-        dry-run tar xfz ${download_filename} --strip-components=1
+        dry-run tar xfz ${download_result_path} --strip-components=1
     else
-        dry-run tar xfz ${download_filename}
+        dry-run tar xfz ${download_result_path}
     fi
 }
 install_links() {
     install_with_link
 }
 cleanup_files() {
-    dry-run rm $download_filename
+    dry-run rm ${download_result_path}
 }
 
 main_install() {
@@ -160,12 +167,8 @@ main_install() {
     download_func=download_${tool_name}
     install_func=install_${tool_name}
     cleanup_func=cleanup_${tool_name}
-
     source ${KOOLBOX_ROOT_DIR}/install-tools/koolbox-tool-versions.inc
     koolbox_parse_options "${@}"
-
-
-
     $init_func
     run_download_file
     run_install_links
@@ -175,7 +178,7 @@ main_install() {
 
 run_download_file() {
     if already_downloaded; then
-        koolbox_info ${tool_name} already dowloaded
+        koolbox_info ${tool_name} already dowloaded in ${download_result_path}
         if ${KOOLBOX_INSTALL_FORCE_DOWNLOAD:-false}; then
             koolbox_info force downloading ${download_result_path} anyway
             $download_func
@@ -209,7 +212,7 @@ run_install_extras() {
 }
 
 run_cleanup_files() {
-    if ${KOOLBOX_INSTALL_CLEANUP:-true}; then
+    if ${KOOLBOX_INSTALL_CLEANUP:-false}; then
         koolbox_info cleanup install files for ${tool_name}
         $cleanup_func
     else
@@ -272,4 +275,11 @@ append_to_file() {
         koolbox_info creating new $file with command: $cmd
         echo $cmd >>$file
     fi
+}
+
+
+#############################################
+# Old deprecated
+init_download_dir() {
+    init_dirs
 }
