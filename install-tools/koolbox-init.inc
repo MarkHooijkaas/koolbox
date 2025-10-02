@@ -133,6 +133,8 @@ run_all() {
     run_cleanup_files
 }
 
+#####################################################################
+# helper functions
 calc_tool_version() {
     # see https://stackoverflow.com/questions/16553089/dynamic-variable-names-in-bash
     version_varname=KOOLBOX_INSTALL_${tool_name^^}_VERSION
@@ -149,25 +151,30 @@ calc_transformed_os_arch() {
     OS_ARCH=${OS}_${ARCH}
 }
 
-download_file() {
-    dry-run curl -L -o ${download_path} ${download_url}
-}
-
-extract_downloaded_file() {
-    #dry-run cd ${extract_dir}
-    if ${skip_tar_topdir:-true}; then
-        local options="--strip-components=1"
+# append a line to a file if it is not there, e.g. to change .bashrc
+append_to_file() {
+    local file=$1
+    shift
+    local cmd="${@}"
+    if [[ -f $file ]]; then
+        pattern="^${cmd/\$/\\\$}$"
+        #echo $pattern
+        found=$(grep -E "^$pattern" $file) || true
+        if [ -z "$found" ] ; then
+            koolbox_info modifying $file by appending command: $cmd
+            echo $cmd >>$file
+        else
+            koolbox_info $file already includes $cmd
+        fi
+    else
+        koolbox_info creating new $file with command: $cmd
+        echo $cmd >>$file
     fi
-    dry-run tar xfz ${download_path} --directory ${extract_dir} ${options:-}
-}
-install_links() {
-    install_with_link
-}
-cleanup_files() {
-    dry-run rm ${download_path}
 }
 
 
+#####################################################################
+# download step
 run_download_file() {
     if [[  -f ${download_path} ]]; then
         koolbox_verbose ${tool_name} already downloaded in ${download_path}
@@ -181,7 +188,15 @@ run_download_file() {
     fi
 }
 
+# default function, can be overridden
+download_file() {
+    dry-run curl -L -o ${download_path} ${download_url}
+}
 
+
+
+#####################################################################
+# install step
 run_install() {
     if [[ -f ${install_path} ]]; then
         koolbox_verbose ${tool_name} already installed
@@ -198,25 +213,17 @@ run_install() {
     fi
 }
 
-run_install_extras() {
-    if ${KOOLBOX_INSTALL_COMPLETIONS:-true}; then
-        if [[ $(type -t install_${tool_name}_completions) == function ]]; then
-            koolbox_verbose installing bash completions for ${tool_name}
-            install_extras
-        fi
+# default function, can be overridden
+extract_downloaded_file() {
+    #dry-run cd ${extract_dir}
+    if ${skip_tar_topdir:-true}; then
+        local options="--strip-components=1"
     fi
+    dry-run tar xfz ${download_path} --directory ${extract_dir} ${options:-}
 }
 
-run_cleanup_files() {
-    if ${KOOLBOX_INSTALL_CLEANUP:-false}; then
-        koolbox_verbose cleanup install files for ${tool_name}
-        $cleanup_func
-    else
-        koolbox_verbose skipping cleanup install files for ${tool_name}
-    fi
-}
-
-install_with_link() {
+# default function, can be overridden
+install_links() {
     if [[ -L ${install_path} ]]; then
         if ${KOOLBOX_INSTALL_FORCE:-false}; then
             koolbox_verbose force linking  ${install_path} to ${extract_path}
@@ -237,22 +244,29 @@ install_with_link() {
 }
 
 
-append_to_file() {
-    local file=$1
-    shift
-    local cmd="${@}"
-    if [[ -f $file ]]; then
-        pattern="^${cmd/\$/\\\$}$"
-        #echo $pattern
-        found=$(grep -E "^$pattern" $file) || true
-        if [ -z "$found" ] ; then
-            koolbox_info modifying $file by appending command: $cmd
-            echo $cmd >>$file
-        else
-            koolbox_info $file already includes $cmd
+run_install_extras() {
+    if ${KOOLBOX_INSTALL_COMPLETIONS:-true}; then
+        if [[ $(type -t install_${tool_name}_completions) == function ]]; then
+            koolbox_verbose installing bash completions for ${tool_name}
+            install_extras
         fi
+    fi
+}
+
+
+
+
+#####################################################################
+# cleanup step
+cleanup_files() {
+    dry-run rm ${download_path}
+}
+
+run_cleanup_files() {
+    if ${KOOLBOX_INSTALL_CLEANUP:-false}; then
+        koolbox_verbose cleanup install files for ${tool_name}
+        $cleanup_func
     else
-        koolbox_info creating new $file with command: $cmd
-        echo $cmd >>$file
+        koolbox_verbose skipping cleanup install files for ${tool_name}
     fi
 }
