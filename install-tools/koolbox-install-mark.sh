@@ -10,7 +10,6 @@ init_vars() {
     OS_ARCH=$(uname)_$(uname -m)
     download_filename=${tool_name}_${OS_ARCH}.tar.gz
     download_url=https://github.com/kovetskiy/mark/releases/download/v${tool_version}/${download_filename}
-    download_result_path=${download_dir}/${tool_name}
 }
 
 run_all "${@}"

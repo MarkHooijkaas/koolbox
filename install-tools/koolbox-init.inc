@@ -116,6 +116,7 @@ run_all() {
 
     calc_tool_version
     init_download_dir
+    download_result_path=${download_dir}/${tool_name}
     init_vars
     run_download_file
     run_install_links
@@ -133,11 +134,19 @@ calc_tool_version() {
 
 }
 
-
+calc_transformed_os_arch() {
+    OS="$(uname | tr '[:upper:]' '[:lower:]')"
+    ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')"
+    OS_ARCH=${OS}_${ARCH}
+}
 
 download_file() {
     dry-run curl -L -O ${download_url}
-    dry-run tar xfz ${download_filename}
+    if ${skip_tar_topdir:-false}; then
+        dry-run tar xfz ${download_filename} --strip-components=1
+    else
+        dry-run tar xfz ${download_filename}
+    fi
 }
 install_links() {
     install_with_link
@@ -155,9 +164,7 @@ main_install() {
     source ${KOOLBOX_ROOT_DIR}/install-tools/koolbox-tool-versions.inc
     koolbox_parse_options "${@}"
 
-    OS="$(uname | tr '[:upper:]' '[:lower:]')"
-    ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')"
-    OS_ARCH=${OS}_${ARCH}
+
 
     $init_func
     run_download_file
