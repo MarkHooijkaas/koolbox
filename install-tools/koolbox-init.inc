@@ -22,10 +22,10 @@ else
     : ${KOOLBOX_INSTALL_PROFILE_FILE:=~/.profile}
 fi
 
-function koolbox_use_apt() {
+koolbox_use_apt() {
     type -t apt >/dev/null
 }
-function koolbox_use_dnf() {
+koolbox_use_dnf() {
     type -t dnf >/dev/null
 }
 
@@ -33,20 +33,20 @@ function koolbox_use_dnf() {
 : ${KOOLBOX_VERBOSE:=false}
 : ${KOOLBOX_INFO:=true}
 
-function koolbox_verbose() {
+koolbox_verbose() {
     if ${KOOLBOX_VERBOSE:-true}; then
         echo "${@}"
     fi
 }
 
-function koolbox_info() {
+koolbox_info() {
     if ${KOOLBOX_INFO:-true}; then
         echo "${@}"
     fi
 }
 
 #####################################################################
-function dry-run() {
+dry-run() {
     if $KOOLBOX_DRY_RUN; then
         printf "   "; echo "${@}"
     else
@@ -57,7 +57,7 @@ function dry-run() {
     fi
 }
 
-function koolbox_parse_options() {
+koolbox_parse_options() {
     KOOLBOX_DRY_RUN=false
     while [ ! $# -eq 0 ]; do
         case $1 in
@@ -97,14 +97,14 @@ EOF
 }
 
 #####################################################################
-function init_download_dir() {
+init_download_dir() {
     download_dir=${KOOLBOX_INSTALL_OPT_DIR}/${tool_name}/${tool_version:-latest}
     dry-run mkdir -p ${download_dir}
     dry-run cd ${download_dir}
 }
 
 
-function run_install() {
+run_install() {
     init_func=init_install_${tool_name}
     download_func=download_tool
     install_func=install_tool
@@ -131,7 +131,7 @@ function run_install() {
     fi
 }
 
-function main_install() {
+main_install() {
     init_func=init_install_${tool_name}
     download_func=download_${tool_name}
     install_func=install_${tool_name}
@@ -139,18 +139,18 @@ function main_install() {
     run_steps "${@}"
 }
 
-function download_tool() {
+download_tool() {
     dry-run curl -L -O ${download_url}
     dry-run tar xfz ${download_filename}
 }
-function install_tool() {
+install_tool() {
     install_with_link
 }
-function cleanup_tool() {
+cleanup_tool() {
     dry-run rm $download_filename
 }
 
-function run_steps() {
+run_steps() {
     source ${KOOLBOX_ROOT_DIR}/install-tools/koolbox-tool-versions.inc
     koolbox_parse_options "${@}"
 
@@ -183,14 +183,14 @@ function run_steps() {
     fi
 
     if ${KOOLBOX_INSTALL_COMPLETIONS:-true}; then
-        if [[ $(type -t install_${tool_name}_completions) == function ]]; then
+        if [[ $(type -t install_${tool_name}_completions) == ]]; then
             koolbox_info installing bash completions for ${tool_name}
             install_${tool_name}_completions
         fi
     fi
 }
 
-function already_downloaded() {
+already_downloaded() {
     if [[ -f ${download_result_path} ]]; then
         return 0
     else
@@ -198,7 +198,7 @@ function already_downloaded() {
     fi
 }
 
-function already_installed() {
+already_installed() {
     if [[ -f ${install_result_path} ]]; then
         return 0
     else
@@ -206,7 +206,7 @@ function already_installed() {
     fi
 }
 
-function install_with_link() {
+install_with_link() {
     if [[ -L ${install_result_path} ]]; then
         if ${KOOLBOX_INSTALL_FORCE:-false}; then
             koolbox_verbose force linking  ${install_result_path} to ${download_result_path}
@@ -227,7 +227,7 @@ function install_with_link() {
 }
 
 
-function append_to_file() {
+append_to_file() {
     local file=$1
     shift
     local cmd="${@}"

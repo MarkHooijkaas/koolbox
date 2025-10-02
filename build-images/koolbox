@@ -36,7 +36,7 @@ koolbox_main() {
 #}
 
 
-function koolbox_help() {
+koolbox_help() {
     cat << EOF
 Usage: ${0##*/} [options]
 
@@ -47,7 +47,7 @@ Options can be:
 EOF
 }
 
-function koolbox_load_config() {
+koolbox_load_config() {
     KOOLBOX_DEFAULT_CONFIG_PATH=./$image_base.config
     KOOLBOX_DEFAULT_CONFIG_PATH+=:~/.config/koolbox
     KOOLBOX_DEFAULT_CONFIG_PATH+=:$KOOLBOX_BASE_DIR/config
@@ -66,7 +66,7 @@ function koolbox_load_config() {
     done
 }
 
-function koolbox_run() {
+koolbox_run() {
     KOOLBOX_RUN_OPTIONS+=" --env HOME"
     KOOLBOX_RUN_OPTIONS+=" --workdir $(pwd)"
     # disable se_linux

@@ -10,11 +10,11 @@ source $(dirname ${BASH_SOURCE[0]})/koolbox-version.inc
 
 
 
-function koolbox_build_init() {
+koolbox_build_init() {
     koolbox_parse_options "$@"
 }
 
-function koolbox_parse_options() {
+koolbox_parse_options() {
     build_cmd=view-container-file
     KOOLBOX_BUILD_FULL=false
     while [ ! $# -eq 0 ]; do
@@ -82,17 +82,17 @@ EOT
 EOF
 }
 
-function koolbox_copy_install_scripts() {
+koolbox_copy_install_scripts() {
     if ${KOOLBOX_BUILD_COPY_ALL_SCRIPTS:-false}; then
         echo "COPY install-tools /opt/koolbox/bin/"
     fi
 }
 
-function koolbox_build_image() {
+koolbox_build_image() {
     $build_cmd "${@}"
 }
 
-function view-container-file() {
+view-container-file() {
     calc-build-options
     if ${KOOLBOX_BUILD_PARENT_IMAGE:-false}; then
         echo \# First will build $(dirname ${BASH_SOURCE[0]})/build-${KOOLBOX_BUILD_FROM_IMAGE_NAME}-image "${@}"
@@ -100,7 +100,7 @@ function view-container-file() {
     create-container-file
 }
 
-function build-image() {
+build-image() {
     calc-build-options
     if ${KOOLBOX_BUILD_PARENT_IMAGE:-false}; then
         echo build-${KOOLBOX_BUILD_FROM_IMAGE_NAME}-image  "${@}"
@@ -110,7 +110,7 @@ function build-image() {
     #echo finished building;  podman images | grep  "${KOOLBOX_BUILD_IMAGE_NAME}"
 }
 
-function calc-build-options() {
+calc-build-options() {
     : ${KOOLBOX_BUILD_FROM_IMAGE_TAG:=${KOOLBOX_VERSION}-${KOOLBOX_BUILD_IMAGE_SUBTAG}}
     : ${KOOLBOX_BUILD_FROM_IMAGE:=${KOOLBOX_BUILD_FROM_IMAGE_NAME}:${KOOLBOX_BUILD_FROM_IMAGE_TAG}}
 
@@ -121,7 +121,7 @@ function calc-build-options() {
     done
 }
 
-function create-container-file() {
+create-container-file() {
     cat <<EOF
 FROM ${KOOLBOX_BUILD_FROM_IMAGE}
 LABEL \

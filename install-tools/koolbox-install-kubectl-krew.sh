@@ -9,7 +9,7 @@ tool_name=krew
 download_result_path=${KREW_ROOT}/bin/kubectl-krew
 install_result_path=${KREW_ROOT}/bin/kubectl-krew
 
-function download_krew() {
+download_krew() {
     local os="$(uname | tr '[:upper:]' '[:lower:]')"
     local arch="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')"
     download_file="krew-${os}_${arch}"
@@ -25,7 +25,7 @@ function download_krew() {
 
 }
 
-function install_krew() {
+install_krew() {
     append_to_file ${KOOLBOX_INSTALL_PROFILE_FILE} "export KREW_ROOT=$KREW_ROOT"
     append_to_file ${KOOLBOX_INSTALL_PROFILE_FILE} "PATH=\$PATH:$KREW_ROOT/bin"
     source ${KOOLBOX_INSTALL_PROFILE_FILE}

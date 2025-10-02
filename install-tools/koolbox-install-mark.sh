@@ -4,7 +4,7 @@ source $(dirname "${BASH_SOURCE[0]}")/koolbox-init.inc
 
 tool_name=mark
 
-function init_install_mark() {
+init_install_mark() {
     # see https://github.com/kovetskiy/mark?tab=readme-ov-file#releases
     # example url https://github.com/kovetskiy/mark/releases/download/v15.0.0/mark_Linux_x86_64.tar.gz
     OS_ARCH=$(uname)_$(uname -m)

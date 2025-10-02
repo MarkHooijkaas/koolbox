@@ -7,7 +7,7 @@ koolbox_parse_options "${@}"
 tool_name=rancher
 install_result_path=$KOOLBOX_INSTALL_BIN_DIR/rancher
 
-function init_install_rancher() {
+init_install_rancher() {
     : ${KOOLBOX_INSTALL_RANCHER_VERSION:=${KOOLBOX_TOOL_VERSION:-}}
     if [[ -z ${KOOLBOX_INSTALL_RANCHER_VERSION} ]]; then
         echo rancher version not specified using -V option or KOOLBOX_INSTALL_RANCHER_VERSION var
@@ -22,7 +22,7 @@ function init_install_rancher() {
     download_result_path=${download_dir}/${tool_name}
 }
 
-function download_rancher() {
+download_rancher() {
     dry-run curl -L --silent -O $download_url
     dry-run tar xfz  $download_filename
     dry-run rm $download_filename
@@ -30,11 +30,11 @@ function download_rancher() {
     dry-run rmdir rancher-${tool_version}
 }
 
-function install_rancher() {
+install_rancher() {
     install_with_link
 }
 
-function install_rancher_completions() {
+install_rancher_completions() {
     dry-run ${download_result_path} completion bash >${KOOLBOX_INSTALL_BASH_COMPLETE_DIR}/rancher
 }
 

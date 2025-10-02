@@ -11,7 +11,7 @@ source $(dirname "${BASH_SOURCE[0]}")/koolbox-init.inc
 tool_name=vault
 install_result_path=${KOOLBOX_INSTALL_BIN_DIR}/vault
 
-function init_install_vault() {
+init_install_vault() {
     : ${KOOLBOX_INSTALL_VAULT_VERSION:=${KOOLBOX_TOOL_VERSION:-}}
     if [[ -z ${KOOLBOX_INSTALL_VAULT_VERSION} ]]; then
         echo vault-cli version not specified using -V option or KOOLBOX_INSTALL_VAULT_VERSION var
@@ -24,7 +24,7 @@ function init_install_vault() {
     download_result_path=${download_dir}/vault
 }
 
-function download_vault() {
+download_vault() {
     koolbox_verbose downloading ${download_filename}
     dry-run curl -fsSLO ${download_url} || true
 
@@ -33,7 +33,7 @@ function download_vault() {
     dry-run rm "${download_filename}"
 }
 
-function install_vault() {
+install_vault() {
     install_with_link
     #append_to_file ${KOOLBOX_INSTALL_PROFILE_FILE} "export vault_ROOT=$vault_ROOT"
     #append_to_file ${KOOLBOX_INSTALL_PROFILE_FILE} "PATH=\$PATH:$vault_ROOT/bin"

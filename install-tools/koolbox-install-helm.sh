@@ -7,7 +7,7 @@ koolbox_parse_options "${@}"
 tool_name=helm
 install_result_path=$KOOLBOX_INSTALL_BIN_DIR/helm
 
-function init_install_helm() {
+init_install_helm() {
     : ${KOOLBOX_INSTALL_HELM_VERSION:=${KOOLBOX_TOOL_VERSION:-}}
     if [[ -z ${KOOLBOX_INSTALL_HELM_VERSION} ]]; then
         echo helm version not specified using -V option or KOOLBOX_INSTALL_HELM_VERSION var
@@ -20,7 +20,7 @@ function init_install_helm() {
     download_result_path=${download_dir}/${tool_name}
 }
 
-function download_helm() {
+download_helm() {
     dry-run curl --silent -O $download_url
     dry-run tar xfz  $download_filename
     dry-run rm $download_filename
@@ -28,11 +28,11 @@ function download_helm() {
     dry-run rmdir ${OS}-${ARCH}
 }
 
-function install_helm() {
+install_helm() {
     install_with_link
 }
 
-function install_helm_completions() {
+install_helm_completions() {
     dry-run ${download_result_path} completion bash >${KOOLBOX_INSTALL_BASH_COMPLETE_DIR}/helm
 }
 
