@@ -116,6 +116,7 @@ init_dirs() {
 }
 
 run_all() {
+    calc_transformed_os_arch
     source ${KOOLBOX_ROOT_DIR}/install-tools/koolbox-tool-versions.inc
     koolbox_parse_options "${@}"
     source ${KOOLBOX_ROOT_DIR}/kooltools/${tool_name}.def
@@ -213,11 +214,14 @@ run_install() {
 
 # default function, can be overridden
 extract_downloaded_file() {
-    #dry-run cd ${extract_dir}
-    if ${skip_tar_topdir:-true}; then
-        local options="--strip-components=1"
+    if [[ ${download_path} == *.zip ]]; then
+        unzip -o ${download_path} -d ${extract_dir}
+    else
+        if ${skip_tar_topdir:-true}; then
+            local options="--strip-components=1"
+        fi
+        dry-run tar xfz ${download_path} --directory ${extract_dir} ${options:-}
     fi
-    dry-run tar xfz ${download_path} --directory ${extract_dir} ${options:-}
 }
 
 # default function, can be overridden
