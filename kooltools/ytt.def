@@ -1,0 +1,15 @@
+: ${KOOLBOX_INSTALL_YTT_VERSION:=0.52.1}
+
+init_vars() {
+    download_filename=ytt-${OS}-${ARCH}
+    download_url=https://github.com/carvel-dev/ytt/releases/download/v${tool_version}/${download_filename}
+}
+
+extract_downloaded_file() {
+    dry-run cp ${download_path} ${extract_path}
+    dry-run chmod 755  ${extract_path}
+}
+
+install_extras() {
+    dry-run ${extract_path} completion bash >${completion_path}
+}
